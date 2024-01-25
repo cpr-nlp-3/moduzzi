@@ -1,1 +1,7 @@
-# nlp-3
+# 👨‍👩‍👧‍👦 팀 소개
+
+|                                   이아륜                                   |                                   조유민                                    |                                   이소연                                   |                                   한원준                                    |
+| :------------------------------------------------------------------------: | :-------------------------------------------------------------------------: | :------------------------------------------------------------------------: | :-------------------------------------------------------------------------: |
+|                                     AI                                     |                                     AI                                      |                                     BE                                     |                                     FE                                      |
+| <img src="https://avatars.githubusercontent.com/u/84628758?v=4" width=150> | <img src="https://avatars.githubusercontent.com/u/104496697?v=4" width=150> | <img src="https://avatars.githubusercontent.com/u/64093942?v=4" width=150> | <img src="https://avatars.githubusercontent.com/u/119842443?v=4" width=150> |
+|                   [@125ryun](https://github.com/125ryun)                   |                [@ymchogotta](https://github.com/ymchogotta)                 |                   [@lee0594](https://github.com/lee0594)                   |                   [@Novrule](https://github.com/Novrule)                    |
