@@ -22,12 +22,7 @@ module.exports = {
 			{ allowConstantExport: true },
 		],
 		"react/jsx-filename-extension": ["warn", { extensions: [".tsx"] }],
-		"prettier/prettier": [
-			"error",
-			{
-				endOfLine: "auto",
-			},
-		],
+		"prettier/prettier": ["error", { endOfLine: "auto" }],
 		"react/react-in-jsx-scope": "off",
 	},
 };
