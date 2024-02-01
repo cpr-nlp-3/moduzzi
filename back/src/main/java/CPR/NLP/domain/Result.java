@@ -12,6 +12,7 @@ import lombok.*;
 public class Result {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //auto increment
     private Long result_id;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
