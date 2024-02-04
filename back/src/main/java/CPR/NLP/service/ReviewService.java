@@ -1,5 +1,6 @@
 package CPR.NLP.service;
 
+import CPR.NLP.domain.Course;
 import CPR.NLP.domain.Review;
 import CPR.NLP.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +18,8 @@ public class ReviewService {
         reviewRepository.save(review);
     }
 
-    public void deleteCourseReview(int courseId) {
-        reviewRepository.deleteByCourseId(courseId);
+    public void deleteCourseReview(Course course) {
+        reviewRepository.deleteByCourse(course);
     }
 
 }

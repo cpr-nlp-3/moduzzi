@@ -15,7 +15,7 @@ public class Course {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) //auto increment
-    private int course_id;
+    private int courseId;
     private String code;
     private String name;
     private String professor;
