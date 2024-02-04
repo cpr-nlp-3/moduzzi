@@ -3,11 +3,10 @@ package CPR.NLP.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Setter //dto 적용 시 setter 생략하기
 @Entity
 public class Result {
 

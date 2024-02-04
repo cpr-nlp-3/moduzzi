@@ -22,3 +22,5 @@ public class Course {
     private String location;
     private String time;
 }
+
+//course db 수정: 별점도 추가
