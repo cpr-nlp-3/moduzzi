@@ -1,6 +1,8 @@
 package CPR.NLP.domain;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
 
@@ -12,10 +14,13 @@ import lombok.*;
 public class Course {
 
     @Id
-    private int course_id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //auto increment
+    private int courseId;
     private String code;
     private String name;
     private String professor;
     private String location;
     private String time;
 }
+
+//course db 수정: 별점도 추가

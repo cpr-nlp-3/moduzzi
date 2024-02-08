@@ -3,16 +3,16 @@ package CPR.NLP.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Setter //dto 적용 시 setter 생략하기
 @Entity
 public class Result {
 
     @Id
-    private Long result_id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //auto increment
+    private Long resultId;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
     private Course course;
