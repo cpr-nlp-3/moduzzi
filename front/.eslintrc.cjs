@@ -28,6 +28,7 @@ module.exports = {
   plugins: ["react", "react-hooks"],
   rules: {
     "react/react-in-jsx-scope": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
     "react-hooks/rules-of-hooks": "error",
   },
   settings: {
