@@ -5,6 +5,11 @@ const styled = { createGlobalStyle };
 
 const GlobalStyles = styled.createGlobalStyle`
   ${reset}
+
+  @font-face {
+    font-family: "Pretendard";
+    src: url(/fonts/PretendardVariable.woff2) format("woff2");
+  }
 `;
 
 export default GlobalStyles;
