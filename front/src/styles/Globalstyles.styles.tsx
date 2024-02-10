@@ -6,6 +6,10 @@ const styled = { createGlobalStyle };
 const GlobalStyles = styled.createGlobalStyle`
   ${reset}
 
+  * {
+    box-sizing: border-box;
+  }
+
   input {
     margin: 0rem;
     padding: 0rem;

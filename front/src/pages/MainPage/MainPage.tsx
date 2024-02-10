@@ -2,11 +2,18 @@ import * as styles from "./MainPage.styles.tsx";
 
 import { useRef, useState } from "react";
 
+import List from "@/components/List/List.tsx";
 import Logo from "@/components/Logo/Logo.tsx";
+
+interface ListInterface {
+  subject: string;
+  professor: string;
+}
 
 const MainPage = () => {
   const search = useRef("");
-  const [isSubject, setIsSubject] = useState(true);
+  const [isSubject, setIsSubject] = useState<boolean>(true);
+  const [list, setList] = useState<ListInterface[]>([]);
 
   const handleSearchButtonClick = () => {
     if (search.current !== "") {
@@ -60,6 +67,13 @@ const MainPage = () => {
             교수명
           </styles.Button>
         </styles.ButtonContainer>
+        {list.map((element, index) => (
+          <List
+            subject={element.subject}
+            professor={element.professor}
+            key={index}
+          />
+        ))}
       </styles.InnerContainer>
     </styles.OuterContainer>
   );
