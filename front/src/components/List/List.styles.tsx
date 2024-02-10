@@ -3,12 +3,12 @@ import styled from "styled-components";
 import Fontstyles from "@/styles/Fontstyles.styles";
 
 export const Container = styled.div`
-  width: 50rem;
   display: flex;
   flex-direction: column;
-  padding: 0rem 1.875rem 1.5rem 1.875rem;
   margin-bottom: 1.5rem;
+  padding: 0rem 1.875rem 1.5rem 1.875rem;
   border-bottom: 0.0625rem solid #444eee;
+  width: 50rem;
   cursor: pointer;
 `;
 

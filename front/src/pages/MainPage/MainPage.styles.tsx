@@ -23,21 +23,21 @@ export const SearchContainer = styled.div`
   border: 0.3125rem solid #444eee;
   width: 50rem;
   height: 5rem;
-  border-radius: 2.8125rem;
+  border-radius: 2.5rem;
 `;
 
 export const SearchInput = styled.input`
   ${Fontstyles.Medium_XL}
   padding-left: 1.875rem;
-  width: 43.125rem;
+  width: 45rem;
   height: 100%;
   line-height: 100%;
 `;
 
 export const SearchButton = styled.img`
-  padding: 0.625rem;
-  width: 3.75rem;
-  height: 3.75rem;
+  padding: 0.625rem 1.25rem 0.625rem 0.625rem;
+  width: 5rem;
+  height: 4.375rem;
   cursor: pointer;
 `;
 
