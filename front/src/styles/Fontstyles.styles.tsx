@@ -16,22 +16,22 @@ const getFontSize = (size: "XL" | "L" | "M" | "S") => {
 };
 
 const Fontstyles = {
-  BOLD_XL: css`
+  Bold_XL: css`
     font-family: "Pretendard";
     font-weight: 700;
     font-size: ${getFontSize("XL")};
   `,
-  BOLD_L: css`
+  Bold_L: css`
     font-family: "Pretendard";
     font-weight: 700;
     font-size: ${getFontSize("L")};
   `,
-  BOLD_M: css`
+  Bold_M: css`
     font-family: "Pretendard";
     font-weight: 700;
     font-size: ${getFontSize("M")};
   `,
-  BOLD_S: css`
+  Bold_S: css`
     font-family: "Pretendard";
     font-weight: 700;
     font-size: ${getFontSize("S")};
