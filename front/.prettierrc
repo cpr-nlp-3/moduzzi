@@ -4,7 +4,22 @@
   "semi": true,
   "tabWidth": 2,
   "trailingComma": "all",
-  "useTabs": true,
+  "useTabs": false,
   "printWidth": 80,
-  "arrowParens": "always"
+  "arrowParens": "always",
+  "endOfLine": "auto",
+  "overrides": [
+    {
+      "files": "*.html",
+      "options": {
+        "parser":"html"
+      }
+    },
+    {
+      "files": "*.json",
+      "options": {
+        "parser":"json"
+      }
+    }
+  ]
 }
