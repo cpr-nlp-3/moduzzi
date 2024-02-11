@@ -18,10 +18,10 @@ public class Result {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) //auto increment
     @Column(name="result_id")
-    private Long resultId;
+    private int resultId;
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "intermediate_id")
-    private Intermediate intermediate;
+    @JoinColumn(name = "course_id")
+    private Course course;
     private String data;
     @Column(name="average_rating")
     private float averageRating;

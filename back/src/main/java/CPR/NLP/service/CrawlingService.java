@@ -16,9 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -27,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 public class CrawlingService {
 
     private final ReviewService reviewService;
+    private final IntermediateService intermediateService;
     private final CourseService courseService;
 
     @Value("${everytime.id}")
@@ -41,14 +40,16 @@ public class CrawlingService {
             String name = course.getName();
             String professor = course.getProfessor();
 
-            //여기서 crawling 함수 호출 -> review content list 받아옴, 차례로 course_id와 함께 save
-            List<String> reviews = executeCrawlingScript(name, professor);
+            //여기서 crawling 함수 호출 ->  rating과 content가 담긴 reviews list 받아옴, 차례로 course_id와 함께 save
+            List<Map<String, Object>> reviews = executeCrawlingScript(name, professor);
+            intermediateService.deleteCourseIntermediate(course); //기존 해당 course의 intermediate 삭제
             reviewService.deleteCourseReview(course); //기존 해당 course의 review들 삭제
 
-            for (String review: reviews) {
+            for (Map<String, Object> review: reviews) {
                 Review newReview = Review.builder()
                         .course(course)
-                        .content(review)
+                        .content((String) review.get("content"))
+                        .rating((int) review.get("rating"))
                         .build();
 
                 reviewService.save(newReview);
@@ -57,9 +58,9 @@ public class CrawlingService {
         }
     }
 
-    public List<String> executeCrawlingScript(String name, String professor) { //동적인 웹페이지에 -> selenium
+    public List<Map<String, Object>> executeCrawlingScript(String name, String professor) { //동적인 웹페이지에 -> selenium
 
-        List<String> reviews = new ArrayList<>();
+        List<Map<String, Object>> reviews = new ArrayList<>();
         WebDriver driver = new ChromeDriver();
 
         // Open the webpage
@@ -103,12 +104,15 @@ public class CrawlingService {
 
         // Retrieve and print the reviews
         for (WebElement review : driver.findElements(By.cssSelector("body > div > div > div.pane > div > div.articles > div.article > div.text"))) {
-            reviews.add(review.getText());
+            Map<String, Object> evaluate = new HashMap<>();
+            int star = driver.findElements(By.cssSelector("body > div > div > div.pane > div > div.articles > div.article > div.article_header > div.title > div.rate > span.star > span.on")).size();
+            evaluate.put("rating", star);
+            evaluate.put("content", review.getText());
+            reviews.add(evaluate);
         }
 
         // Close the browser
         driver.quit();
-
         return reviews;
     }
 }

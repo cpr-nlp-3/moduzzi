@@ -23,7 +23,7 @@ public class Review {
     private Course course;
     @Column(columnDefinition = "Text")
     private String content;
-    private float rating;
+    private int rating;
     @CreatedDate
     @Column(name = "saved_at")
     private LocalDateTime savedAt;
