@@ -20,8 +20,8 @@ public class Result {
     @Column(name="result_id")
     private Long resultId;
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id")
-    private Course course;
+    @JoinColumn(name = "intermediate_id")
+    private Intermediate intermediate;
     private String data;
     @Column(name="average_rating")
     private float averageRating;
