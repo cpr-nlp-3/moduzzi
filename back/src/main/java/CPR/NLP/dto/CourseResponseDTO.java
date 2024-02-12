@@ -3,8 +3,6 @@ package CPR.NLP.dto;
 import CPR.NLP.domain.Course;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 
@@ -20,9 +18,7 @@ public class CourseResponseDTO {
     private String professor;
     private String location;
     private String time;
-    @CreatedDate
     private LocalDateTime createdAt;
-    @LastModifiedDate
     private LocalDateTime updatedAt;
 
     public CourseResponseDTO(Course course) {
