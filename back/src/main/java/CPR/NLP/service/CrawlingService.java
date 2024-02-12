@@ -28,7 +28,7 @@ public class CrawlingService {
     @Value("${everytime.password}")
     private String everytimePassword;
 
-    @Scheduled(cron = "0 7 2 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
+    @Scheduled(cron = "0 0 0 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
     public void saveReviews() {
         List<Course> courses = courseService.findAll();
         WebDriver driver = new ChromeDriver();
@@ -71,7 +71,7 @@ public class CrawlingService {
             savedCookies = driver.manage().getCookies();
         }
 
-        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
 
         // Search for lecture
         List<Map<String, Object>> reviews = new ArrayList<>();
@@ -103,11 +103,14 @@ public class CrawlingService {
         moreElement.click(); //더보기 메뉴
 
         // Retrieve and print the reviews
-        for (WebElement review : driver.findElements(By.cssSelector("body > div > div > div.pane > div > div.articles > div.article > div.text"))) {
+        List<WebElement> starElements = driver.findElements(By.cssSelector("body > div > div > div.pane > div > div.articles > div.article > div.article_header > div.title > div.rate > span.star > span.on"));
+        List<WebElement> reviewElements = driver.findElements(By.cssSelector("body > div > div > div.pane > div > div.articles > div.article > div.text"));
+
+        for (int i = 0; i < reviewElements.size(); i++) {
             Map<String, Object> evaluate = new HashMap<>();
-            int star = driver.findElements(By.cssSelector("body > div > div > div.pane > div > div.articles > div.article > div.article_header > div.title > div.rate > span.star > span.on")).size();
-            evaluate.put("rating", star);
-            evaluate.put("content", review.getText());
+            String width = starElements.get(i).getAttribute("style").split("%")[0].split(":")[1].trim();
+            evaluate.put("rating",  Integer.parseInt(width)/20);
+            evaluate.put("content", reviewElements.get(i).getText());
             reviews.add(evaluate);
         }
 
