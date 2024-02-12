@@ -32,5 +32,5 @@ public class Result {
     private LocalDateTime createdAt;
     @LastModifiedDate
     @Column(name = "updated_at")
-    private LocalDateTime updated_at;
+    private LocalDateTime updatedAt;
 }
