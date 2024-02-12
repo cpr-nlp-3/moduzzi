@@ -31,4 +31,12 @@ public class CourseService {
     public List<Course> findAll(){
         return courseRepository.findAll();
     }
+
+    public List<Course> findByName(String name){
+        return courseRepository.findByName(name);
+    }
+
+    public List<Course> findByProfessor(String professor){
+        return courseRepository.findByProfessor(professor);
+    }
 }
