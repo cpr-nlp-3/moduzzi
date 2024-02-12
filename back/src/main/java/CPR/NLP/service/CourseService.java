@@ -1,6 +1,7 @@
 package CPR.NLP.service;
 
 import CPR.NLP.domain.Course;
+import CPR.NLP.dto.CourseRequestDTO;
 import CPR.NLP.dto.CourseResponseDTO;
 import CPR.NLP.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,13 +18,13 @@ public class CourseService {
 
     private final CourseRepository courseRepository;
 
-    public void save(Course course) {
-        isNameAndProfessorDuplicate(course);
-        courseRepository.save(course);
+    public void save(CourseRequestDTO courseDTO) {
+        isNameAndProfessorDuplicate(courseDTO);
+        courseRepository.save(courseDTO.toEntity());
     }
 
-    public void isNameAndProfessorDuplicate(Course course) {
-        courseRepository.findByNameAndProfessor(course.getName(), course.getProfessor())
+    public void isNameAndProfessorDuplicate(CourseRequestDTO courseDTO) {
+        courseRepository.findByNameAndProfessor(courseDTO.getName(), courseDTO.getProfessor())
                 .ifPresent(i -> {
                     throw new IllegalStateException("이미 존재하는 과목과 교수님 정보입니다.");
                 });

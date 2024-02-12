@@ -13,7 +13,7 @@ public class ReviewResponseDTO {
 
     @NotNull
     private Long reviewId;
-    private CourseResponseDTO course;
+    private int courseId;
     @NotNull
     private String content;
     @NotNull
@@ -22,7 +22,7 @@ public class ReviewResponseDTO {
 
     public ReviewResponseDTO(Review review) {
         this.reviewId = review.getReviewId();
-        this.course = new CourseResponseDTO(review.getCourse());
+        this.courseId = review.getCourse().getCourseId();
         this.content = review.getContent();
         this.rating = review.getRating();
         this.savedAt = review.getSavedAt();
