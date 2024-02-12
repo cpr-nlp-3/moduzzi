@@ -13,19 +13,18 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Entity
-@EntityListeners(AuditingEntityListener.class) //Date 자동생성 위함
-public class Review {
+@EntityListeners(AuditingEntityListener.class)
+public class Intermediate {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) //auto increment
-    @Column(name="review_id")
-    private Long reviewId;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id")
-    private Course course;
+    @Column(name="intermediate_id")
+    private Long intermediateId;
     @Column(columnDefinition = "Text")
-    private String content;
-    private int rating;
+    private String material;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "review_id")
+    private Review review;
     @CreatedDate
     @Column(name = "saved_at")
     private LocalDateTime savedAt;
