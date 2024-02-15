@@ -1,7 +1,8 @@
 package CPR.NLP.service;
 
 import CPR.NLP.domain.Course;
-import CPR.NLP.domain.Review;
+import CPR.NLP.dto.CourseResponseDTO;
+import CPR.NLP.dto.ReviewRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,27 +31,37 @@ public class CrawlingService {
 
     @Scheduled(cron = "0 0 0 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
     public void saveReviews() {
-        List<Course> courses = courseService.findAll();
+        List<CourseResponseDTO> courseDTOs = courseService.findAll();
         WebDriver driver = new ChromeDriver();
 
-        for (Course course: courses) {
+        for (CourseResponseDTO courseDTO: courseDTOs) {
 
-            String name = course.getName();
-            String professor = course.getProfessor();
+            String name = courseDTO.getName();
+            String professor = courseDTO.getProfessor();
 
             List<Map<String, Object>> reviews = executeCrawlingScript(driver, name, professor); //crawling 함수 호출 ->  rating과 content가 담긴 reviews list 받아옴, 차례로 course_id와 함께 save
+            Course course = Course.builder()
+                    .courseId(courseDTO.getCourseId())
+                    .code(courseDTO.getCode())
+                    .name(courseDTO.getName())
+                    .professor(courseDTO.getProfessor())
+                    .location(courseDTO.getLocation())
+                    .time(courseDTO.getTime())
+                    .createdAt(courseDTO.getCreatedAt())
+                    .updatedAt(courseDTO.getUpdatedAt())
+                    .build();
 
             intermediateService.deleteCourseIntermediate(course); //기존 해당 course의 intermediate 삭제
             reviewService.deleteCourseReview(course); //기존 해당 course의 review들 삭제
 
             for (Map<String, Object> review: reviews) {
-                Review newReview = Review.builder()
+                ReviewRequestDTO newReviewDTO = ReviewRequestDTO.builder()
                         .course(course)
                         .content((String) review.get("content"))
                         .rating((int) review.get("rating"))
                         .build();
 
-                reviewService.save(newReview);
+                reviewService.save(newReviewDTO);
             }
             //System.out.println("reviews = " + reviews);
         }

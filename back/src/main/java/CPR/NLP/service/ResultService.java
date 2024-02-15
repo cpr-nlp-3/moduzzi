@@ -16,7 +16,10 @@ public class ResultService {
 
     private final ResultRepository resultRepository;
 
-    public void findReviewByCourse(Course course) { //프론트에서 course 리스트 중 하나를 선택하고 해당 course를 parameter로 보내줌
-        Optional<Result> result = resultRepository.findByCourse(course);
+    public Result findResultByCourse(Course course) { //프론트에서 course 리스트 중 하나를 선택하고 해당 course를 parameter로 보내줌
+        Result result =  resultRepository.findByCourse(course)
+                .orElseThrow(() -> new IllegalArgumentException("해당 강의에 대한 분석 결과물이 존재하지 않습니다."));
+
+        return result;
     }
 }
