@@ -13,6 +13,7 @@ export const Title = styled.div`
   ${Fontstyles.Bold_XL}
   height: 3.75rem;
   line-height: 3.75rem;
+  color: ${(props) => props.theme.thickText};
 `;
 
 export const Content = styled.div`

@@ -10,6 +10,10 @@ const GlobalStyles = styled.createGlobalStyle`
     box-sizing: border-box;
   }
 
+  body {
+    background-color: ${(props) => props.theme.background};
+  }
+
   input {
     margin: 0rem;
     padding: 0rem;

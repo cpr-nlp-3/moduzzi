@@ -49,13 +49,14 @@ const MainPage = () => {
         {mode === "search" && (
           <Lectures lectures={lectures} setMode={setMode} />
         )}
-
-        <Evaluation
-          subject={"자료구조"}
-          professor={"장부루"}
-          score={2.5}
-          details={["교수님이 좋아요", "조교님도 좋아요", "성적을 잘줘요"]}
-        />
+        {mode === "detail" && (
+          <Evaluation
+            subject={"자료구조"}
+            professor={"장부루"}
+            score={2.5}
+            details={["교수님이 좋아요", "조교님도 좋아요", "성적을 잘줘요"]}
+          />
+        )}
       </styles.InnerContainer>
     </styles.OuterContainer>
   );

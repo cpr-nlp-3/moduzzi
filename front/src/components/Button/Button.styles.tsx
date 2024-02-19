@@ -18,10 +18,12 @@ export const Button = styled.div<{ $isAvailable: boolean }>`
   background-image: ${(props) =>
     props.$isAvailable
       ? 'url("/images/check.png")'
-      : 'url("/images/check-none.png")'};
+      : props.theme.background === "#ffffff"
+        ? 'url("/images/non-check-light.png")'
+        : 'url("/images/non-check-dark.png")'};
   background-repeat: no-repeat;
   background-size: 2.5rem 2.5rem;
   line-height: 2.5rem;
-  color: ${(props) => (props.$isAvailable ? "#444eee" : "#000000")};
+  color: ${(props) => (props.$isAvailable ? "#444eee" : props.theme.lightText)};
   cursor: pointer;
 `;

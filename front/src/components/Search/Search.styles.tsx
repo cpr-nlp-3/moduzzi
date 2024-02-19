@@ -17,6 +17,11 @@ export const SearchInput = styled.input`
   width: 45rem;
   height: 100%;
   line-height: 100%;
+  color: ${(props) => props.theme.thickText};
+
+  &::placeholder {
+    color: ${(props) => props.theme.lightText};
+  }
 `;
 
 export const SearchButton = styled.img`
