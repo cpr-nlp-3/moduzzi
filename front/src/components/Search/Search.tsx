@@ -1,15 +1,13 @@
 import * as styles from "./Search.styles.tsx";
 
 interface SearchProps {
-  search: string;
-  setSearch: (search: string) => void;
+  search: React.MutableRefObject<string>;
   handleSearchButtonClick: () => void;
   handleEnterPress: (event: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 const Search = ({
   search,
-  setSearch,
   handleSearchButtonClick,
   handleEnterPress,
 }: SearchProps) => {
@@ -17,9 +15,8 @@ const Search = ({
     <styles.SearchContainer>
       <styles.SearchInput
         placeholder="과목명, 교수명으로 검색"
-        value={search}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          setSearch(event.target.value);
+          search.current = event.target.value;
         }}
         onKeyDown={handleEnterPress}
       />

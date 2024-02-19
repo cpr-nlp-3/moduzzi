@@ -1,6 +1,6 @@
 import * as styles from "./MainPage.styles.tsx";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 import Button from "@/components/Button/Button.tsx";
 import List from "@/components/List/List.tsx";
@@ -14,12 +14,12 @@ interface ListInterface {
 
 const MainPage = () => {
   const [mode, setMode] = useState<"main" | "search" | "detail">("main");
-  const [search, setSearch] = useState<string>("");
   const [isSubject, setIsSubject] = useState<boolean>(true);
   const [list, setList] = useState<ListInterface[]>([]);
+  const search = useRef<string>("");
 
   const handleSearchButtonClick = () => {
-    if (search !== "") {
+    if (search.current !== "") {
       setList([
         { subject: "과목1", professor: "교수1" },
         { subject: "과목2", professor: "교수2" },
@@ -52,7 +52,6 @@ const MainPage = () => {
         <Logo />
         <Search
           search={search}
-          setSearch={setSearch}
           handleSearchButtonClick={handleSearchButtonClick}
           handleEnterPress={handleEnterPress}
         />
