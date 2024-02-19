@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import Fontstyles from "@/styles/Fontstyles.styles";
+import Fontstyles from "@/styles/Fontstyles.styles.tsx";
 
 export const StarContainer = styled.div`
   display: flex;
@@ -13,6 +13,7 @@ export const Title = styled.div`
   ${Fontstyles.Bold_XL}
   height: 3.75rem;
   line-height: 3.75rem;
+  color: ${(props) => props.theme.thickText};
 `;
 
 export const Content = styled.div`
@@ -24,6 +25,7 @@ export const Score = styled.div`
   ${Fontstyles.Medium_L}
   height: 3rem;
   line-height: 3rem;
+  color: ${(props) => props.theme.lightText};
 `;
 
 export const FloolStarContainer = styled.div`

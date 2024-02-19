@@ -3,6 +3,7 @@ import * as styles from "./MainPage.styles.tsx";
 import { useState, useRef } from "react";
 
 import Button from "@/components/Button/Button.tsx";
+import DarkMode from "@/components/DarkMode/DarkMode.tsx";
 import Evaluation from "@/components/Evaluation/Evaluation.tsx";
 import Lectures from "@/components/Lectures/Lectures.tsx";
 import Logo from "@/components/Logo/Logo.tsx";
@@ -49,13 +50,15 @@ const MainPage = () => {
         {mode === "search" && (
           <Lectures lectures={lectures} setMode={setMode} />
         )}
-
-        <Evaluation
-          subject={"자료구조"}
-          professor={"장부루"}
-          score={2.5}
-          details={["교수님이 좋아요", "조교님도 좋아요", "성적을 잘줘요"]}
-        />
+        {mode === "detail" && (
+          <Evaluation
+            subject={"자료구조"}
+            professor={"장부루"}
+            score={4.9}
+            details={["교수님이 좋아요", "조교님도 좋아요"]}
+          />
+        )}
+        <DarkMode />
       </styles.InnerContainer>
     </styles.OuterContainer>
   );

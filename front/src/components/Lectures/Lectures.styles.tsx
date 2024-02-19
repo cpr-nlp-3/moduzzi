@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import Fontstyles from "@/styles/Fontstyles.styles";
+import Fontstyles from "@/styles/Fontstyles.styles.tsx";
 
 export const LecturesContainer = styled.div`
   display: flex;
@@ -23,6 +23,7 @@ export const Subject = styled.div`
   width: 100%;
   height: 3rem;
   line-height: 3rem;
+  color: ${(props) => props.theme.thickText};
 `;
 
 export const Professor = styled.div`
@@ -30,4 +31,5 @@ export const Professor = styled.div`
   width: 100%;
   height: 2.25rem;
   line-height: 2.25rem;
+  color: ${(props) => props.theme.lightText};
 `;

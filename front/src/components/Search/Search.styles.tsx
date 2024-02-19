@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import Fontstyles from "@/styles/Fontstyles.styles";
+import Fontstyles from "@/styles/Fontstyles.styles.tsx";
 
 export const SearchContainer = styled.div`
   display: flex;
@@ -17,6 +17,7 @@ export const SearchInput = styled.input`
   width: 45rem;
   height: 100%;
   line-height: 100%;
+  color: ${(props) => props.theme.thickText};
 `;
 
 export const SearchButton = styled.img`

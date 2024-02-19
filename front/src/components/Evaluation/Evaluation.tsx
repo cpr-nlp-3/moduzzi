@@ -1,7 +1,8 @@
-import Details from "./Details/Details.tsx";
 import * as styles from "./Evaluation.styles.tsx";
-import Info from "./Info/Info.tsx";
-import Star from "./Star/Star.tsx";
+
+import Details from "@/components/Evaluation/Details/Details.tsx";
+import Info from "@/components/Evaluation/Info/Info.tsx";
+import Star from "@/components/Evaluation/Star/Star.tsx";
 
 interface EvaluationProps {
   subject: string;
