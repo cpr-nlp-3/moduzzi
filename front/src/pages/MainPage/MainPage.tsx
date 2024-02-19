@@ -21,11 +21,8 @@ const MainPage = () => {
 
   const handleSearchButtonClick = () => {
     if (search.current !== "") {
-      setLectures([
-        { subject: "과목1", professor: "교수1" },
-        { subject: "과목2", professor: "교수2" },
-      ]);
       setMode("search");
+      setLectures([{ subject: "자료구조", professor: "장부루" }]);
     }
   };
 
@@ -52,14 +49,13 @@ const MainPage = () => {
         {mode === "search" && (
           <Lectures lectures={lectures} setMode={setMode} />
         )}
-        {mode === "detail" && (
-          <Evaluation
-            subject={"한원준"}
-            professor={"아무런 내용"}
-            score={2.5}
-            details={["asdf", "Asdfasdf", "asdfasdfasdf"]}
-          />
-        )}
+
+        <Evaluation
+          subject={"자료구조"}
+          professor={"장부루"}
+          score={2.5}
+          details={["교수님이 좋아요", "조교님도 좋아요", "성적을 잘줘요"]}
+        />
       </styles.InnerContainer>
     </styles.OuterContainer>
   );
