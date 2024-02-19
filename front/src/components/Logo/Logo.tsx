@@ -2,7 +2,7 @@ import * as styles from "./Logo.styles.tsx";
 
 const Logo = () => {
   const handleLogoClick = () => {
-    location.href = "/";
+    location.reload();
   };
 
   return (
