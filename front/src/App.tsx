@@ -1,15 +1,10 @@
-import { ThemeProvider } from "styled-components";
-
-import useTheme from "@/hooks/useTheme";
+import { ThemeProvider } from "@/context/ThemeProvider.tsx";
 import MainPage from "@/pages/MainPage/MainPage.tsx";
-import GlobalStyles from "@/styles/Globalstyles.styles";
-import { lightTheme, darkTheme } from "@/styles/Theme";
+import GlobalStyles from "@/styles/Globalstyles.styles.tsx";
 
 const App = () => {
-  const { theme } = useTheme();
-
   return (
-    <ThemeProvider theme={theme === "light" ? lightTheme : darkTheme}>
+    <ThemeProvider>
       <MainPage />
       <GlobalStyles />
     </ThemeProvider>

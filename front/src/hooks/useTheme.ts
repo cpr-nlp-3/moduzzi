@@ -1,11 +1,18 @@
-import { useCallback, useLayoutEffect, useState } from "react";
+import { useContext, useLayoutEffect } from "react";
+
+import { ThemeContext } from "@/context/ThemeProvider.tsx";
 
 const useTheme = () => {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const context = useContext(ThemeContext);
+  const { theme, setTheme } = context;
 
-  const handleTheme = useCallback(() => {
-    setTheme((curTheme) => (curTheme === "light" ? "dark" : "light"));
-  }, []);
+  const handleTheme = () => {
+    if (theme === "light") {
+      setTheme("dark");
+    } else {
+      setTheme("light");
+    }
+  };
 
   useLayoutEffect(() => {
     if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
@@ -15,10 +22,7 @@ const useTheme = () => {
     }
   }, []);
 
-  return {
-    theme,
-    handleTheme,
-  };
+  return { theme, handleTheme };
 };
 
 export default useTheme;

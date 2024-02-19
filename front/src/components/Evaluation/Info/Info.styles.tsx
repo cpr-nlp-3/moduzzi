@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import Fontstyles from "@/styles/Fontstyles.styles";
+import Fontstyles from "@/styles/Fontstyles.styles.tsx";
 
 export const InfoContainer = styled.div`
   display: flex;
