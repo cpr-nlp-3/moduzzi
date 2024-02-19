@@ -3,11 +3,12 @@ import * as styles from "./MainPage.styles.tsx";
 import { useState, useRef } from "react";
 
 import Button from "@/components/Button/Button.tsx";
-import List from "@/components/List/List.tsx";
+import Evaluation from "@/components/Evaluation/Evaluation.tsx";
+import Lectures from "@/components/Lectures/Lectures.tsx";
 import Logo from "@/components/Logo/Logo.tsx";
 import Search from "@/components/Search/Search.tsx";
 
-interface ListInterface {
+interface LecturesInterface {
   subject: string;
   professor: string;
 }
@@ -15,12 +16,12 @@ interface ListInterface {
 const MainPage = () => {
   const [mode, setMode] = useState<"main" | "search" | "detail">("main");
   const [isSubject, setIsSubject] = useState<boolean>(true);
-  const [list, setList] = useState<ListInterface[]>([]);
+  const [lectures, setLectures] = useState<LecturesInterface[]>([]);
   const search = useRef<string>("");
 
   const handleSearchButtonClick = () => {
     if (search.current !== "") {
-      setList([
+      setLectures([
         { subject: "과목1", professor: "교수1" },
         { subject: "과목2", professor: "교수2" },
       ]);
@@ -38,14 +39,6 @@ const MainPage = () => {
     }
   };
 
-  const renderContent = () => {
-    if (mode === "search") {
-      return <List list={list} setMode={setMode} />;
-    } else if (mode === "detail") {
-      return <List list={list} setMode={setMode} />;
-    }
-  };
-
   return (
     <styles.OuterContainer>
       <styles.InnerContainer>
@@ -56,7 +49,17 @@ const MainPage = () => {
           handleEnterPress={handleEnterPress}
         />
         <Button isSubject={isSubject} setIsSubject={setIsSubject} />
-        {renderContent()}
+        {mode === "search" && (
+          <Lectures lectures={lectures} setMode={setMode} />
+        )}
+        {mode === "detail" && (
+          <Evaluation
+            subject={"한원준"}
+            professor={"아무런 내용"}
+            score={2.5}
+            details={["asdf", "Asdfasdf", "asdfasdfasdf"]}
+          />
+        )}
       </styles.InnerContainer>
     </styles.OuterContainer>
   );
