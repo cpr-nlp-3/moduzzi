@@ -2,7 +2,12 @@ import styled from "styled-components";
 
 import Fontstyles from "@/styles/Fontstyles.styles";
 
-export const Container = styled.div`
+export const ListContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+export const ElementContainer = styled.div`
   display: flex;
   flex-direction: column;
   margin-bottom: 1.5rem;

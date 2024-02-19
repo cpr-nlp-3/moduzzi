@@ -1,9 +1,11 @@
 import * as styles from "./MainPage.styles.tsx";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 
+import Button from "@/components/Button/Button.tsx";
 import List from "@/components/List/List.tsx";
 import Logo from "@/components/Logo/Logo.tsx";
+import Search from "@/components/Search/Search.tsx";
 
 interface ListInterface {
   subject: string;
@@ -11,13 +13,18 @@ interface ListInterface {
 }
 
 const MainPage = () => {
-  const search = useRef("");
+  const [mode, setMode] = useState<"main" | "search" | "detail">("main");
+  const [search, setSearch] = useState<string>("");
   const [isSubject, setIsSubject] = useState<boolean>(true);
   const [list, setList] = useState<ListInterface[]>([]);
 
   const handleSearchButtonClick = () => {
-    if (search.current !== "") {
-      console.log(search.current);
+    if (search !== "") {
+      setList([
+        { subject: "과목1", professor: "교수1" },
+        { subject: "과목2", professor: "교수2" },
+      ]);
+      setMode("search");
     }
   };
 
@@ -31,49 +38,26 @@ const MainPage = () => {
     }
   };
 
+  const renderContent = () => {
+    if (mode === "search") {
+      return <List list={list} setMode={setMode} />;
+    } else if (mode === "detail") {
+      return <List list={list} setMode={setMode} />;
+    }
+  };
+
   return (
     <styles.OuterContainer>
       <styles.InnerContainer>
         <Logo />
-        <styles.SearchContainer>
-          <styles.SearchInput
-            placeholder="과목명, 교수명으로 검색"
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              search.current = event.target.value;
-            }}
-            onKeyDown={handleEnterPress}
-          />
-          <styles.SearchButton
-            src="/images/search.png"
-            alt="search"
-            onClick={handleSearchButtonClick}
-          />
-        </styles.SearchContainer>
-        <styles.ButtonContainer>
-          <styles.Button
-            $isAvailable={isSubject}
-            onClick={() => {
-              setIsSubject(true);
-            }}
-          >
-            과목명
-          </styles.Button>
-          <styles.Button
-            $isAvailable={!isSubject}
-            onClick={() => {
-              setIsSubject(false);
-            }}
-          >
-            교수명
-          </styles.Button>
-        </styles.ButtonContainer>
-        {list.map((element, index) => (
-          <List
-            subject={element.subject}
-            professor={element.professor}
-            key={index}
-          />
-        ))}
+        <Search
+          search={search}
+          setSearch={setSearch}
+          handleSearchButtonClick={handleSearchButtonClick}
+          handleEnterPress={handleEnterPress}
+        />
+        <Button isSubject={isSubject} setIsSubject={setIsSubject} />
+        {renderContent()}
       </styles.InnerContainer>
     </styles.OuterContainer>
   );

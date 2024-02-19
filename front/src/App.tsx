@@ -3,9 +3,10 @@ import GlobalStyles from "@/styles/Globalstyles.styles";
 
 const App = () => {
   return (
-    <GlobalStyles>
+    <>
       <MainPage />
-    </GlobalStyles>
+      <GlobalStyles />
+    </>
   );
 };
 
