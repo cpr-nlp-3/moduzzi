@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useLayoutEffect, useState } from "react";
 
 const useTheme = () => {
   const [theme, setTheme] = useState<"light" | "dark">("light");
@@ -7,7 +7,7 @@ const useTheme = () => {
     setTheme((curTheme) => (curTheme === "light" ? "dark" : "light"));
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
       setTheme("dark");
     } else {
