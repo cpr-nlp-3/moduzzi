@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     void deleteByCourse(Course course);
+    void deleteByCourseId(int courseId);
 }

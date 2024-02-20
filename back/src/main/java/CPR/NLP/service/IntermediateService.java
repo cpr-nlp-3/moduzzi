@@ -13,7 +13,7 @@ public class IntermediateService {
 
     private final IntermediateRepository intermediateRepository;
 
-    void deleteCourseIntermediate(Course course){
-        intermediateRepository.deleteByReviewCourse(course);
+    void deleteCourseIntermediate(int courseId){
+        intermediateRepository.deleteByCourseId(courseId);
     }
 }
