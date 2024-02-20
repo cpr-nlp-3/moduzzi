@@ -21,5 +21,4 @@ public class ReviewService {
     public void deleteCourseReview(int courseId) {
         reviewRepository.deleteByCourseId(courseId);
     }
-
 }
