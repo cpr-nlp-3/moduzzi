@@ -13,6 +13,7 @@ public class ReviewResponseDTO {
 
     @NotNull
     private Long reviewId;
+    @NotNull
     private int courseId;
     @NotNull
     private String content;

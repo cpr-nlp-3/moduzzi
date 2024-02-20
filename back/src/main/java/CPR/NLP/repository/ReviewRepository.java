@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     void deleteByCourse(Course course);
+    void deleteByCourseId(int courseId);
 }

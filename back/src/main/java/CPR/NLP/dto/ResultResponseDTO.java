@@ -14,7 +14,7 @@ public class ResultResponseDTO {
     @NotNull
     private int resultId;
     @NotNull
-    private Course course;
+    private int courseId;
     @NotNull
     private String data;
     @NotNull
@@ -24,7 +24,7 @@ public class ResultResponseDTO {
 
     public ResultResponseDTO(Result result) {
         this.resultId = result.getResultId();
-        this.course = result.getCourse();
+        this.courseId = result.getCourse().getCourseId();
         this.data = result.getData();
         this.averageRating = result.getAverageRating();
         this.createdAt = this.getCreatedAt();
