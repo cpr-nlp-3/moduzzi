@@ -1,6 +1,6 @@
 import * as styles from "./MainPage.styles.tsx";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 import Button from "@/components/Button/Button.tsx";
 import DarkMode from "@/components/DarkMode/DarkMode.tsx";
@@ -36,6 +36,20 @@ const MainPage = () => {
       handleSearchButtonClick();
     }
   };
+
+  useEffect(() => {
+    console.log(
+      `%c
+  ███╗   ███╗ ██████╗ ██████╗ ██╗   ██╗███████╗███████╗██╗
+  ████╗ ████║██╔═══██╗██╔══██╗██║   ██║╚══███╔╝╚══███╔╝██║
+  ██╔████╔██║██║   ██║██║  ██║██║   ██║  ███╔╝   ███╔╝ ██║
+  ██║╚██╔╝██║██║   ██║██║  ██║██║   ██║ ███╔╝   ███╔╝  ██║
+  ██║ ╚═╝ ██║╚██████╔╝██████╔╝╚██████╔╝███████╗███████╗██║
+  ╚═╝     ╚═╝ ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝╚══════╝╚═╝
+  `,
+      "color:#444eee",
+    );
+  }, []);
 
   return (
     <styles.OuterContainer>
