@@ -5,7 +5,7 @@ import { lightTheme, darkTheme } from "@/styles/Theme.ts";
 
 export const ThemeContext = createContext({
   theme: "light",
-  setTheme: (theme: "light" | "dark") => {},
+  setTheme: (_theme: "light" | "dark") => {},
 });
 
 interface ThemeProviderProps {

@@ -1,0 +1,31 @@
+{
+    "document":
+    {
+        "sentiment":"negative",
+        "confidence":
+            {
+            "negative":60.536022,"positive":34.42027,"neutral":5.0437093
+            }    
+    },
+    "sentences":
+    [
+        {
+            "content":"Ȯ���� ���ӱ������̶� �׷��� �Ϻ��Ͻ����� ���� �� �����ϴٸ� ������ �� �ֽô� ��(?) �����ϴ�.",
+            "offset":0,
+            "length":55,
+            "sentiment":"negative",
+            "confidence":
+            {
+                "negative":0.9981541,
+                "positive":9.969197E-4,
+                "neutral":8.490185E-4
+            },
+            "highlights":
+            [
+                {
+                    "offset":0,"length":46
+                }
+            ]
+        },
+        {
+            "content":" ���Խ��� ���� �����ø� ��õ�帮��. ����� ���� ������ ���� �ٸ� �����Բ� ��õ�帳�ϴ�.","offset":55,"length":51,"sentiment":"positive","confidence":{"negative":8.634291E-6,"positive":0.9999734,"neutral":1.7901844E-5},"highlights":[{"offset":1,"length":18}]},{"content":" \n���Ƿ��� ���� �������ϴ�.","offset":106,"length":16,"sentiment":"negative","confidence":{"negative":0.99974734,"positive":1.0714905E-4,"neutral":1.4554603E-4},"highlights":[{"offset":2,"length":13}]},{"content":" �İ��� ���� ���� ���ʰ����ӿ��� �����ϴ� ���뿡 ���� ���ε� �� �������� ���ϴ� ��ó�� ���������ϴ�.","offset":122,"length":57,"sentiment":"negative","confidence":{"negative":0.9985612,"positive":4.661566E-4,"neutral":9.7267143E-4},"highlights":[{"offset":37,"length":19}]},{"content":" �����ڷ�� ������ ������ �ڷḦ �״�� ������ ����ϴ� �����꿡 �ö�� �ִ� ������ ������ ���Ǹ� �����ô� ���� ��õ�帳�ϴ�.","offset":179,"length":71,"sentiment":"neutral","confidence":{"negative":1.5537944E-4,"positive":3.9228555E-4,"neutral":0.9994523},"highlights":[{"offset":23,"length":47}]},{"content":" ������ �������� ���� �������� �����˴ϴ�.","offset":250,"length":24,"sentiment":"neutral","confidence":{"negative":0.3779463,"positive":0.0016141693,"neutral":0.6204395},"highlights":[{"offset":1,"length":22}]},{"content":" ������ ���ؿ� �ö�� �ִ� ������ �״�� �������ų� ���� �ڵ带 Ȱ���ϸ� �Ǵ� ������ ���Խ��ϴ�.","offset":274,"length":55,"sentiment":"neutral","confidence":{"negative":2.3317701E-4,"positive":1.581537E-4,"neutral":0.9996087},"highlights":[{"offset":1,"length":53}]},{"content":" \n�����̾��µ� �����Բ��� ����� ���Ǹ� �����Ͻô°� �������̼̰� �׷��� ���� �帧�� �Ҷ� ����� �����̾����ϴ�.","offset":329,"length":63,"sentiment":"negative","confidence":{"negative":0.99996805,"positive":1.6858214E-5,"neutral":1.5106042E-5},"highlights":[{"offset":41,"length":21}]},{"content":" \n�߰������ֽʴϴ�","offset":392,"length":10,"sentiment":"neutral","confidence":{"negative":7.834684E-4,"positive":0.0946733,"neutral":0.9045432},"highlights":[{"offset":2,"length":8}]},{"content":" ������ �߹޾��ֽð� �ְ������","offset":402,"length":17,"sentiment":"positive","confidence":{"negative":0.0,"positive":1.0,"neutral":0.0},"highlights":[{"offset":1,"length":10}]},{"content":"\n�� ������ġ�Ű͵� �°� �ƽ���͵� �±��ѵ� �׳� ������ü�� ¥�����ٴ»����� �� ū�� �����б⿣ �� �����ǵ�?\n������ �İ��� �̷��� �ηư� ������ ���� ����...\n�����Բ��� �л��� �ִ��� ���ؽ����ַ��� ������ ����Ͻô� ����� ���� ����.","offset":419,"length":133,"sentiment":"negative","confidence":{"negative":0.99876213,"positive":8.12826E-4,"neutral":4.250821E-4},"highlights":[{"offset":62,"length":25}]},{"content":" ������ �����ؼ� ��´ٸ� �� �ð����� �� ���ذ� �� �������� �����ð��� �ſ� �پ�����.","offset":552,"length":50,"sentiment":"negative","confidence":{"negative":0.9979243,"positive":5.2387465E-4,"neutral":0.0015517141},"highlights":[{"offset":22,"length":27}]},{"content":" \n������ �ϰ� ���� �����Բ� �����մϴ�.","offset":602,"length":23,"sentiment":"positive","confidence":{"negative":0.0016506067,"positive":0.9976701,"neutral":6.7921827E-4},"highlights":[{"offset":12,"length":10}]},{"content":" ȭ�����ϼ���","offset":625,"length":7,"sentiment":"positive","confidence":{"negative":0.0027857053,"positive":0.99636865,"neutral":8.45676E-4},"highlights":[{"offset":1,"length":6}]},{"content":"\n�̰� �� ���� ���� ����ģ�ٴ°��� ���� ������ ������ �ȵ�","offset":632,"length":33,"sentiment":"negative","confidence":{"negative":0.998536,"positive":4.1318752E-4,"neutral":0.0010508224},"highlights":[{"offset":23,"length":10}]}]}

@@ -48,7 +48,8 @@ export const CeilStarContainer = styled.div<{ $score: number }>`
   overflow: hidden;
   position: absolute;
   left: 5rem;
-  width: ${(props) => `${(props.$score / 5) * 15}rem`};
+  width: ${(props) =>
+    `${Math.floor(props.$score) * 3 + (props.$score - Math.floor(props.$score)) * 2.5 + 0.25}rem`};
   height: 3rem;
 `;
 

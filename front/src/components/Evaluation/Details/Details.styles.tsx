@@ -26,9 +26,8 @@ export const Detail = styled.div`
   ${Fontstyles.Medium_L}
   padding: 0rem 1rem;
   height: 2.5rem;
-  background-color: #444eee;
+  background-color: rgba(68, 78, 238, 0.5);
   line-height: 2.5rem;
   color: #ffffff;
-  opacity: 0.5;
   border-radius: 1.25rem;
 `;
