@@ -69,7 +69,7 @@ const MainPage = () => {
             subject={"자료구조"}
             professor={"장부루"}
             score={4.9}
-            details={["교수님이 좋아요", "조교님도 좋아요"]}
+            details={["교수님이 좋아요", "조교님도 좋아요", "제 기분도 좋아요"]}
           />
         )}
         <DarkMode />
