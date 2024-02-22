@@ -1,1 +1,5 @@
 key.py
+
+*.txt
+!out_sentiment_*
+!out_summary_*
