@@ -4,72 +4,101 @@ import requests
 import json
 import re
 
+# api 키 저장
 import key
-client_id = key.client_id
-client_secret = key.client_secret
 
-url = 'https://naveropenapi.apigw.ntruss.com/text-summary/v1/summarize'
-url2 = 'https://naveropenapi.apigw.ntruss.com/sentiment-analysis/v1/analyze'
+def summarize(reviewfile="null.txt", tone=3, summaryCount=5):
+    
+    client_id = key.client_id
+    client_secret = key.client_secret
+    url = 'https://naveropenapi.apigw.ntruss.com/text-summary/v1/summarize'
+    
+    reviewfile_path = os.getcwd() + '/ai/' + reviewfile
+    with open(reviewfile_path, 'r', encoding='UTF-8') as file:
+        content = file.read()
 
-headers = {
+    tone = tone
+    summaryCount = summaryCount
+    
+    headers = {
             'Accept': 'application/json;UTF-8',
             'Content-Type': 'application/json;UTF-8',
             'X-NCP-APIGW-API-KEY-ID': client_id,
             'X-NCP-APIGW-API-KEY': client_secret,
         }
 
-root_path = os.getcwd()
-textfile = 'test.txt'
-textfile_path = root_path + '/ai/' + textfile
-with open(textfile_path, 'r', encoding='utf-8') as file:
-    content = file.read()
-# content = re.sub('\n', ' ', content)
+    data = {
+    "document": {
+        "content": content
+    },
+    "option": {
+        "language": "ko",
+        "model": "general",
+        "tone": tone,
+        "summaryCount": summaryCount,
+    },
+    }
 
-tone = 3
-summaryCount = 5
+    response = requests.post(
+        url, 
+        headers = headers, 
+        data = json.dumps(data).encode('UTF-8'))
 
-# data = {
-#   "document": {
-#     "content": content
-#   },
-#   "option": {
-#     "language": "ko",
-#     "model": "general",
-#     "tone": tone,
-#     "summaryCount": summaryCount,
-#   },
-# }
+    rescode = response.status_code
+    if(rescode != 200):
+        print("*** [Error] summarize : " + response.text)
+        exit(1) # 에러 발생 시 프로그램 종료
+        
+    summary_raw = response.text
+    summary = summary_raw.split(":")[1].lstrip("\"").rstrip("\"}")
+    summaries = summary.split("\\n")
+    for i, line in enumerate(summaries):
+        summaries[i] = re.sub('[.,!?]', '', line)
 
-# response = requests.post(
-#     url, 
-#     headers=headers, 
-#     data=json.dumps(data).encode('UTF-8'))
+    summaryfile_path = os.getcwd() + '/ai/' + 'out_summary_' + reviewfile
+    with open(summaryfile_path, "w", encoding='UTF-8') as file:
+        for line in summaries:
+            file.write(line)
+            file.write("\n")
+        
+def sentiment(reviewfile="null.txt"): 
 
-# rescode = response.status_code
-# if(rescode != 200):
-#     print("Error : " + response.text)
-#     exit(1) # 에러 발생 시 프로그램 종료
+    client_id = key.client_id
+    client_secret = key.client_secret
+    url = 'https://naveropenapi.apigw.ntruss.com/sentiment-analysis/v1/analyze'
+
+    reviewfile_path = os.getcwd() + '/ai/' + reviewfile
+    with open(reviewfile_path, 'r', encoding='UTF-8') as file:
+        content = file.read()
+        
+        
+    headers = {
+            'Accept': 'application/json;UTF-8',
+            'Content-Type': 'application/json;UTF-8',
+            'X-NCP-APIGW-API-KEY-ID': client_id,
+            'X-NCP-APIGW-API-KEY': client_secret,
+        }
     
-# summary_raw = response.text.split(":")[1].lstrip("\"").rstrip("\"}")
+    data = {
+        "content": content
+    }
+    
+    json.dumps(data, indent=4, sort_keys=True)
+    response = requests.post(
+        url, 
+        headers = headers, 
+        data = json.dumps(data).encode('UTF-8'))
 
-# summary = summary_raw.split("\\n")
-# for i, line in enumerate(summary):
-#     summary[i] = re.sub('[.,!?]', '', line)
-# print(summary)
-
-data = {
-    "content": content
-}
-json.dumps(data, indent=4, sort_keys=True)
-response = requests.post(
-    url2, 
-    headers=headers, 
-    data=json.dumps(data).encode('UTF-8'))
-
-rescode = response.status_code
-if(rescode != 200):
-    print("Error : " + response.text)
-    exit(1) # 에러 발생 시 프로그램 종료
-# print(response.text)
-with open("./ai/out.txt", "w") as file:
-    file.write(response.text)
+    rescode = response.status_code
+    if(rescode != 200):
+        print("*** [Error] sentiment : " + response.text)
+        exit(1) # 에러 발생 시 프로그램 종료
+        
+    sentiment_raw = response.text
+        
+    sentimentfile_path = os.getcwd() + '/ai/' + 'out_sentiment_' + reviewfile
+    with open(sentimentfile_path, "w", encoding='UTF-8') as file:
+        file.write(sentiment_raw)
+        
+summarize("test.txt")
+sentiment("test.txt")
