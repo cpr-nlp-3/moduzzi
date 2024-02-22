@@ -66,6 +66,12 @@ const GlobalStyles = styled.createGlobalStyle`
       font-size: 8px;
     }
   }
+
+  @media (max-width: 430px) {
+    html {
+      font-size: 6px;
+    }
+  }
 `;
 
 export default GlobalStyles;
