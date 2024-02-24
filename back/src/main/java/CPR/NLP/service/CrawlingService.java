@@ -12,6 +12,8 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +33,35 @@ public class CrawlingService {
     @Value("${everytime.password}")
     private String everytimePassword;
 
+    @Value("${client_id}")
+    private String clientId;
+    @Value("${client_secret}")
+    private String clientSecret;
+
+    public String summarizeReview(String reviewContent) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("X-NCP-APIGW-API-KEY-ID", clientId);
+        headers.set("X-NCP-APIGW-API-KEY", clientSecret);
+        String summarizeUrl = "https://naveropenapi.apigw.ntruss.com/text-summary/v1/summarize";
+
+        // 요약할 문서와 옵션 설정
+        String requestBody = "{\"document\":{\"content\":\"" + reviewContent + "\"}," +
+                "\"option\":{\"language\":\"ko\",\"model\":\"general\",\"tone\":3,\"summaryCount\":5}}";
+
+        HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
+        ResponseEntity<String> response = restTemplate.postForEntity(summarizeUrl, request, String.class);
+
+        if (response.getStatusCode() == HttpStatus.OK) {
+            String summarizedText =  response.getBody().split(":")[1].trim().replaceAll("[.,!?]", "");
+            return summarizedText;
+        } else {
+            return "Error occurred: " + response.getStatusCode();
+        }
+    }
+
     @Scheduled(cron = "0 0 0 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
     public void saveReviews() {
         List<Course> courses = courseRepository.findAll();
@@ -42,6 +73,7 @@ public class CrawlingService {
             String professor = course.getProfessor();
 
             List<Map<String, Object>> reviews = executeCrawlingScript(driver, name, professor); //crawling 함수 호출 ->  rating과 content가 담긴 reviews list 받아옴, 차례로 course_id와 함께 save
+            System.out.println("reviews = " + reviews);
             intermediateRepository.deleteByReviewCourseCourseId(courseId); //기존 해당 course의 intermediate 삭제
             reviewRepository.deleteByCourseCourseId(courseId); //기존 해당 course의 review들 삭제
 
@@ -54,7 +86,6 @@ public class CrawlingService {
 
                 reviewRepository.save(newReview);
             }
-            //System.out.println("reviews = " + reviews);
         }
         driver.quit(); //quit 하면 cookie 정보가 모두 사라짐
     }
