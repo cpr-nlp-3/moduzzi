@@ -11,5 +11,5 @@ import java.util.Optional;
 public interface ResultRepository extends JpaRepository<Result, Integer> {
     Optional<Result> findByCourse(Course course);
     Optional<Result> findByCourseNameAndCourseProfessor(String name, String professor);
-    Optional<Result> findByCourseId(Integer integer);
+    Optional<Result> findByCourseCourseId(Integer integer);
 }

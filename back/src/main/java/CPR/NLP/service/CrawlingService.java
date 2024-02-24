@@ -2,8 +2,6 @@ package CPR.NLP.service;
 
 import CPR.NLP.domain.Course;
 import CPR.NLP.domain.Review;
-import CPR.NLP.dto.CourseResponseDTO;
-import CPR.NLP.dto.ReviewRequestDTO;
 import CPR.NLP.repository.CourseRepository;
 import CPR.NLP.repository.IntermediateRepository;
 import CPR.NLP.repository.ReviewRepository;
@@ -44,8 +42,8 @@ public class CrawlingService {
             String professor = course.getProfessor();
 
             List<Map<String, Object>> reviews = executeCrawlingScript(driver, name, professor); //crawling 함수 호출 ->  rating과 content가 담긴 reviews list 받아옴, 차례로 course_id와 함께 save
-            intermediateRepository.deleteByCourseId(courseId); //기존 해당 course의 intermediate 삭제
-            reviewRepository.deleteByCourseId(courseId); //기존 해당 course의 review들 삭제
+            intermediateRepository.deleteByReviewCourseCourseId(courseId); //기존 해당 course의 intermediate 삭제
+            reviewRepository.deleteByCourseCourseId(courseId); //기존 해당 course의 review들 삭제
 
             for (Map<String, Object> review: reviews) {
                 Review newReview = Review.builder()
