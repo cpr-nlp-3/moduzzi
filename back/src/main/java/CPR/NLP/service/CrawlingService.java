@@ -38,7 +38,7 @@ public class CrawlingService {
     @Value("${client_secret}")
     private String clientSecret;
 
-    public String summarizeReview(String reviewContent) {
+    public String summarize(String reviewContent) {
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
@@ -62,7 +62,29 @@ public class CrawlingService {
         }
     }
 
-    @Scheduled(cron = "0 6 19 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
+    public String sentiment(String reviewContent) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("X-NCP-APIGW-API-KEY-ID", clientId);
+        headers.set("X-NCP-APIGW-API-KEY", clientSecret);
+        String summarizeUrl = "https://naveropenapi.apigw.ntruss.com/sentiment-analysis/v1/analyze";
+
+        // 요약할 문서와 옵션 설정
+        String requestBody = "{\"content\":\"" + reviewContent + "\"}";
+
+        HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
+        ResponseEntity<String> response = restTemplate.postForEntity(summarizeUrl, request, String.class);
+
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return response.getBody();
+        } else {
+            return "Error occurred: " + response.getStatusCode();
+        }
+    }
+
+    @Scheduled(cron = "0 37 19 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
     public void saveReviews() {
         List<Course> courses = courseRepository.findAll();
         WebDriver driver = new ChromeDriver();
