@@ -1,11 +1,27 @@
-# import sys
 import os
 import requests
 import json
 import re
+import pymysql
 
 # api 키 저장
 import key
+
+def getData(): 
+    conn = pymysql.connect(
+        host = 'localhost',
+        user = '',
+        password = '',
+        db = '',
+        charset = 'UTF-8',
+    )
+    
+    curs = conn.cursor()
+    
+    sql = "COMMAND HERE"
+    curs.execute(sql)
+    result = curs.fetchall()
+    print(result)
 
 def summarize(reviewfile="null.txt", tone=3, summaryCount=5):
     
@@ -47,7 +63,7 @@ def summarize(reviewfile="null.txt", tone=3, summaryCount=5):
     rescode = response.status_code
     if(rescode != 200):
         print("*** [Error] summarize : " + response.text)
-        exit(1) # 에러 발생 시 프로그램 종료
+        return # 에러 발생 시 현재 처리중인 텍스트 건너뛰기
         
     summary_raw = response.text
     summary = summary_raw.split(":")[1].lstrip("\"").rstrip("\"}")
@@ -92,13 +108,10 @@ def sentiment(reviewfile="null.txt"):
     rescode = response.status_code
     if(rescode != 200):
         print("*** [Error] sentiment : " + response.text)
-        exit(1) # 에러 발생 시 프로그램 종료
+        return # 에러 발생 시 현재 처리중인 텍스트 건너뛰기
         
     sentiment_raw = response.text
         
     sentimentfile_path = os.getcwd() + '/ai/' + 'out_sentiment_' + reviewfile
     with open(sentimentfile_path, "w", encoding='UTF-8') as file:
         file.write(sentiment_raw)
-        
-summarize("test.txt")
-sentiment("test.txt")
