@@ -62,7 +62,7 @@ public class CrawlingService {
         }
     }
 
-    @Scheduled(cron = "0 0 0 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
+    @Scheduled(cron = "0 6 19 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
     public void saveReviews() {
         List<Course> courses = courseRepository.findAll();
         WebDriver driver = new ChromeDriver();
@@ -116,7 +116,10 @@ public class CrawlingService {
         WebElement lectureElement = null;
 
         try {
-            lectureElement = driver.findElement(By.xpath("//div[@class='lectures']//a[@class='lecture']/div[@class='professor' and contains(text(), '" + professor + "')]"));
+            lectureElement = driver.findElement(By.xpath("//div[@class='lectures']//a[@class='lecture']" +
+                    "[.//div[@class='professor' and contains(text(), '" + professor + "')]]" +
+                    "[.//div[@class='name']/span[@class='highlight' and contains(text(), '" + name + "')]]"+
+                    "[not(descendant::div[@class='name']/span[@class='highlight']/following-sibling::text()[normalize-space()])]"));
         } catch (Exception e) {
             System.out.println("Professor's lecture not found.");
             return reviews;
