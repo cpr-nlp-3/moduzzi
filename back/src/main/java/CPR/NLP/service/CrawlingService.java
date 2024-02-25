@@ -95,12 +95,13 @@ public class CrawlingService {
         return words.length >= 5;
     }
 
-    @Scheduled(cron = "0 15 17 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
+    @Scheduled(cron = "0 35 17 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
     public void saveReviews() {
         List<Course> courses = courseRepository.findAll();
         WebDriver driver = new ChromeDriver();
 
         for (Course course : courses) {
+            String allReviews = "";
             int courseId = course.getCourseId();
             String name = course.getName();
             String professor = course.getProfessor();
@@ -111,6 +112,7 @@ public class CrawlingService {
 
             String text = "";
             String material = "";
+            String feeling = "";
             for (Map<String, Object> review: reviews) {
                 Review newReview = Review.builder()
                         .course(course)
@@ -119,6 +121,7 @@ public class CrawlingService {
                         .build();
 
                 reviewRepository.save(newReview);
+                allReviews += newReview.getContent().replace("\n", " ");
 
                 if ((text.length()+newReview.getContent().length()) <= 2000){ //클로바 API: 최대 2000자
                     text += newReview.getContent().replace("\n", " ");
@@ -134,14 +137,11 @@ public class CrawlingService {
                     }
                 }
             }
-            
-            //남은 text 처리
-            //System.out.println("text2 = " + text);
-            if (isEnoughWords(text))
+
+            if (isEnoughWords(text)) //남은 text 처리
                 material += summarize(text);
 
-            //System.out.println("material = " + material);
-            
+            feeling = sentiment(allReviews); //감정분석
         }
         driver.quit(); //quit 하면 cookie 정보가 모두 사라짐
     }
