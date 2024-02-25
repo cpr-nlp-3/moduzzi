@@ -1,6 +1,7 @@
 package CPR.NLP.service;
 
 import CPR.NLP.domain.Course;
+import CPR.NLP.domain.Intermediate;
 import CPR.NLP.domain.Review;
 import CPR.NLP.repository.CourseRepository;
 import CPR.NLP.repository.IntermediateRepository;
@@ -84,7 +85,17 @@ public class CrawlingService {
         }
     }
 
-    @Scheduled(cron = "0 37 19 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
+    public static String[] splitIntoSentences(String text) {
+        // 각 문장을 기호(?, !, . 등) 또는 줄바꿈(\n)을 기준으로 분리
+        return text.split("[?!.\\n]");
+    }
+
+    public boolean isEnoughWords(String text) {
+        String[] words = text.split("\\s+"); // 공백 문자로 단어를 분리하여 배열로 만들고, 5개 이상이면 true 반환
+        return words.length >= 5;
+    }
+
+    @Scheduled(cron = "0 15 17 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
     public void saveReviews() {
         List<Course> courses = courseRepository.findAll();
         WebDriver driver = new ChromeDriver();
@@ -95,10 +106,11 @@ public class CrawlingService {
             String professor = course.getProfessor();
 
             List<Map<String, Object>> reviews = executeCrawlingScript(driver, name, professor); //crawling 함수 호출 ->  rating과 content가 담긴 reviews list 받아옴, 차례로 course_id와 함께 save
-            System.out.println("reviews = " + reviews);
             intermediateRepository.deleteByReviewCourseCourseId(courseId); //기존 해당 course의 intermediate 삭제
             reviewRepository.deleteByCourseCourseId(courseId); //기존 해당 course의 review들 삭제
 
+            String text = "";
+            String material = "";
             for (Map<String, Object> review: reviews) {
                 Review newReview = Review.builder()
                         .course(course)
@@ -107,7 +119,29 @@ public class CrawlingService {
                         .build();
 
                 reviewRepository.save(newReview);
+
+                if ((text.length()+newReview.getContent().length()) <= 2000){ //클로바 API: 최대 2000자
+                    text += newReview.getContent().replace("\n", " ");
+                } else {
+                    String[] sentences = splitIntoSentences(newReview.getContent());
+                    for (String sentence : sentences) {
+                        if (text.length() + sentence.length() <= 2000) {
+                            text += sentence;
+                        } else {
+                            material += summarize(text);
+                            text = sentence;
+                        }
+                    }
+                }
             }
+            
+            //남은 text 처리
+            //System.out.println("text2 = " + text);
+            if (isEnoughWords(text))
+                material += summarize(text);
+
+            //System.out.println("material = " + material);
+            
         }
         driver.quit(); //quit 하면 cookie 정보가 모두 사라짐
     }
