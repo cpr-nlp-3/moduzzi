@@ -1,7 +1,13 @@
 package CPR.NLP.service;
 
 import CPR.NLP.domain.Course;
+import CPR.NLP.domain.Intermediate;
 import CPR.NLP.domain.Review;
+import CPR.NLP.repository.CourseRepository;
+import CPR.NLP.repository.IntermediateRepository;
+import CPR.NLP.repository.ReviewRepository;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +15,8 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -18,9 +26,9 @@ import java.util.concurrent.TimeUnit;
 @Transactional
 public class CrawlingService {
 
-    private final ReviewService reviewService;
-    private final IntermediateService intermediateService;
-    private final CourseService courseService;
+    private final ReviewRepository reviewRepository;
+    private final IntermediateRepository intermediateRepository;
+    private final CourseRepository courseRepository;
 
     private Set<Cookie> savedCookies;
     @Value("${everytime.id}")
@@ -28,20 +36,87 @@ public class CrawlingService {
     @Value("${everytime.password}")
     private String everytimePassword;
 
+    @Value("${client_id}")
+    private String clientId;
+    @Value("${client_secret}")
+    private String clientSecret;
+
+    public String summarize(String reviewContent) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("X-NCP-APIGW-API-KEY-ID", clientId);
+        headers.set("X-NCP-APIGW-API-KEY", clientSecret);
+        String summarizeUrl = "https://naveropenapi.apigw.ntruss.com/text-summary/v1/summarize";
+
+        // 요약할 문서와 옵션 설정
+        String requestBody = "{\"document\":{\"content\":\"" + reviewContent + "\"}," +
+                "\"option\":{\"language\":\"ko\",\"model\":\"general\",\"tone\":3,\"summaryCount\":5}}";
+
+        HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
+        ResponseEntity<String> response = restTemplate.postForEntity(summarizeUrl, request, String.class);
+
+        if (response.getStatusCode() == HttpStatus.OK) {
+            String summarizedText =  response.getBody().split(":")[1].trim().replaceAll("[.,!?]", "");
+            return summarizedText;
+        } else {
+            return "Error occurred: " + response.getStatusCode();
+        }
+    }
+
+    public String sentiment(String reviewContent) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("X-NCP-APIGW-API-KEY-ID", clientId);
+        headers.set("X-NCP-APIGW-API-KEY", clientSecret);
+        String summarizeUrl = "https://naveropenapi.apigw.ntruss.com/sentiment-analysis/v1/analyze";
+
+        // 요약할 문서와 옵션 설정
+        String requestBody = "{\"content\":\"" + reviewContent + "\"}";
+
+        HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
+        ResponseEntity<String> response = restTemplate.postForEntity(summarizeUrl, request, String.class);
+
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return response.getBody();
+        } else {
+            return "Error occurred: " + response.getStatusCode();
+        }
+    }
+
+    public static String[] splitIntoSentences(String text) {
+        // 각 문장을 기호(?, !, . 등) 또는 줄바꿈(\n)을 기준으로 분리
+        return text.split("[?!.\\n]");
+    }
+
+    public boolean isEnoughWords(String text) {
+        String[] words = text.split("\\s+"); // 공백 문자로 단어를 분리하여 배열로 만들고, 5개 이상이면 true 반환
+        return words.length >= 5;
+    }
+
     @Scheduled(cron = "0 0 0 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
     public void saveReviews() {
-        List<Course> courses = courseService.findAll();
+        List<Course> courses = courseRepository.findAll();
         WebDriver driver = new ChromeDriver();
 
-        for (Course course: courses) {
-
+        for (Course course : courses) {
+            int courseId = course.getCourseId();
             String name = course.getName();
             String professor = course.getProfessor();
 
             List<Map<String, Object>> reviews = executeCrawlingScript(driver, name, professor); //crawling 함수 호출 ->  rating과 content가 담긴 reviews list 받아옴, 차례로 course_id와 함께 save
+            float size = reviews.size();
+            intermediateRepository.deleteByCourseCourseId(courseId); //기존 해당 course의 intermediate 삭제
+            reviewRepository.deleteByCourseCourseId(courseId); //기존 해당 course의 review들 삭제
 
-            intermediateService.deleteCourseIntermediate(course); //기존 해당 course의 intermediate 삭제
-            reviewService.deleteCourseReview(course); //기존 해당 course의 review들 삭제
+            String text = "";
+            String material = "";
+            String feeling = "";
+            String allReviews = "";
+            float averageRating = 0;
 
             for (Map<String, Object> review: reviews) {
                 Review newReview = Review.builder()
@@ -50,9 +125,44 @@ public class CrawlingService {
                         .rating((int) review.get("rating"))
                         .build();
 
-                reviewService.save(newReview);
+                reviewRepository.save(newReview);
+                allReviews += newReview.getContent().replace("\n", " ");
+                averageRating += newReview.getRating();
+
+                if ((text.length()+newReview.getContent().length()) <= 2000){ //클로바 API: 최대 2000자
+                    text += newReview.getContent().replace("\n", " ");
+                } else {
+                    String[] sentences = splitIntoSentences(newReview.getContent());
+                    for (String sentence : sentences) {
+                        if (text.length() + sentence.length() <= 2000) {
+                            text += sentence;
+                        } else {
+                            material += summarize(text);
+                            text = sentence;
+                        }
+                    }
+                }
             }
-            //System.out.println("reviews = " + reviews);
+
+            if (isEnoughWords(text)) //남은 text 처리
+                material += summarize(text);
+
+            feeling = sentiment(allReviews); //감정분석
+
+            Gson gson = new Gson();
+            JsonObject documentObject = gson.fromJson(feeling, JsonObject.class).get("document").getAsJsonObject();
+            String sentiment = documentObject.get("sentiment").getAsString();
+            String confidence = documentObject.get("confidence").toString();
+
+            Intermediate newIntermediate = Intermediate.builder()
+                    .course(course)
+                    .confidence(confidence)
+                    .sentiment(sentiment)
+                    .material(material)
+                    .averageRating(averageRating/size)
+                    .build();
+
+            intermediateRepository.save(newIntermediate);
         }
         driver.quit(); //quit 하면 cookie 정보가 모두 사라짐
     }
@@ -83,17 +193,20 @@ public class CrawlingService {
         WebElement lectureElement = null;
 
         try {
-            lectureElement = driver.findElement(By.xpath("//div[@class='lectures']//a[@class='lecture']/div[@class='professor' and contains(text(), '" + professor + "')]"));
+            lectureElement = driver.findElement(By.xpath("//div[@class='lectures']//a[@class='lecture']" +
+                    "[.//div[@class='professor' and contains(text(), '" + professor + "')]]" +
+                    "[.//div[@class='name']/span[@class='highlight' and contains(text(), '" + name + "')]]"+
+                    "[not(descendant::div[@class='name']/span[@class='highlight']/following-sibling::text()[normalize-space()])]"));
         } catch (Exception e) {
             System.out.println("Professor's lecture not found.");
             return reviews;
         }
         // Click on the lecture element
         lectureElement.click();
-        
+
         driver.manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
         WebElement moreElement = null;
-        
+
         try {
             moreElement = driver.findElement(By.cssSelector("body > div > div > div.pane > div > section.review > div.articles > a"));
         } catch (Exception e) {
