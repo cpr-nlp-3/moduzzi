@@ -6,6 +6,8 @@ import CPR.NLP.domain.Review;
 import CPR.NLP.repository.CourseRepository;
 import CPR.NLP.repository.IntermediateRepository;
 import CPR.NLP.repository.ReviewRepository;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -95,24 +97,27 @@ public class CrawlingService {
         return words.length >= 5;
     }
 
-    @Scheduled(cron = "0 35 17 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
+    @Scheduled(cron = "0 0 0 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
     public void saveReviews() {
         List<Course> courses = courseRepository.findAll();
         WebDriver driver = new ChromeDriver();
 
         for (Course course : courses) {
-            String allReviews = "";
             int courseId = course.getCourseId();
             String name = course.getName();
             String professor = course.getProfessor();
 
             List<Map<String, Object>> reviews = executeCrawlingScript(driver, name, professor); //crawling 함수 호출 ->  rating과 content가 담긴 reviews list 받아옴, 차례로 course_id와 함께 save
+            float size = reviews.size();
             intermediateRepository.deleteByCourseCourseId(courseId); //기존 해당 course의 intermediate 삭제
             reviewRepository.deleteByCourseCourseId(courseId); //기존 해당 course의 review들 삭제
 
             String text = "";
             String material = "";
             String feeling = "";
+            String allReviews = "";
+            float averageRating = 0;
+
             for (Map<String, Object> review: reviews) {
                 Review newReview = Review.builder()
                         .course(course)
@@ -122,6 +127,7 @@ public class CrawlingService {
 
                 reviewRepository.save(newReview);
                 allReviews += newReview.getContent().replace("\n", " ");
+                averageRating += newReview.getRating();
 
                 if ((text.length()+newReview.getContent().length()) <= 2000){ //클로바 API: 최대 2000자
                     text += newReview.getContent().replace("\n", " ");
@@ -142,6 +148,21 @@ public class CrawlingService {
                 material += summarize(text);
 
             feeling = sentiment(allReviews); //감정분석
+
+            Gson gson = new Gson();
+            JsonObject documentObject = gson.fromJson(feeling, JsonObject.class).get("document").getAsJsonObject();
+            String sentiment = documentObject.get("sentiment").getAsString();
+            String confidence = documentObject.get("confidence").toString();
+
+            Intermediate newIntermediate = Intermediate.builder()
+                    .course(course)
+                    .confidence(confidence)
+                    .sentiment(sentiment)
+                    .material(material)
+                    .averageRating(averageRating/size)
+                    .build();
+
+            intermediateRepository.save(newIntermediate);
         }
         driver.quit(); //quit 하면 cookie 정보가 모두 사라짐
     }
@@ -182,10 +203,10 @@ public class CrawlingService {
         }
         // Click on the lecture element
         lectureElement.click();
-        
+
         driver.manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
         WebElement moreElement = null;
-        
+
         try {
             moreElement = driver.findElement(By.cssSelector("body > div > div > div.pane > div > section.review > div.articles > a"));
         } catch (Exception e) {
