@@ -22,9 +22,13 @@ public class Intermediate {
     private Long intermediateId;
     @Column(columnDefinition = "Text")
     private String material;
+    private String sentiment;
+    private String confidence;
+    @Column(name="average_rating")
+    private float averageRating;
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "review_id")
-    private Review review;
+    @JoinColumn(name = "course_id")
+    private Course course;
     @CreatedDate
     @Column(name = "saved_at")
     private LocalDateTime savedAt;

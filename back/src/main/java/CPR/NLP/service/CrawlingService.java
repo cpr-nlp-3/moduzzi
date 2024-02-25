@@ -107,7 +107,7 @@ public class CrawlingService {
             String professor = course.getProfessor();
 
             List<Map<String, Object>> reviews = executeCrawlingScript(driver, name, professor); //crawling 함수 호출 ->  rating과 content가 담긴 reviews list 받아옴, 차례로 course_id와 함께 save
-            intermediateRepository.deleteByReviewCourseCourseId(courseId); //기존 해당 course의 intermediate 삭제
+            intermediateRepository.deleteByCourseCourseId(courseId); //기존 해당 course의 intermediate 삭제
             reviewRepository.deleteByCourseCourseId(courseId); //기존 해당 course의 review들 삭제
 
             String text = "";

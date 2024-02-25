@@ -7,6 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface IntermediateRepository extends JpaRepository<Intermediate, Long> {
-    void deleteByReviewCourse(Course course);
-    void deleteByReviewCourseCourseId(int courseId);
+    void deleteByCourseCourseId(int courseId);
 }
