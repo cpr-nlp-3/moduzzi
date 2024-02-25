@@ -1,5 +1,7 @@
 key.py
 
+__pycache__/
+
 *.txt
 !out_sentiment_*
 !out_summary_*
