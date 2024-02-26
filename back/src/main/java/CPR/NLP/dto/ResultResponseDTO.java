@@ -15,9 +15,9 @@ public class ResultResponseDTO {
     private int resultId;
     @NotNull
     private int courseId;
-    @NotNull
     private String data;
-    @NotNull
+    private String sentiment;
+    private String confidence;
     private float averageRating;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

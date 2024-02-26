@@ -12,9 +12,7 @@ public class ReviewRequestDTO {
 
     @NotNull
     private Course course;
-    @NotNull
     private String content;
-    @NotNull
     private int rating;
 
     public Review toEntity() {

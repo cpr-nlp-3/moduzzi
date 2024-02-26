@@ -1,10 +1,10 @@
 package CPR.NLP.service;
 
 import CPR.NLP.domain.Course;
-import CPR.NLP.domain.Intermediate;
+import CPR.NLP.domain.Result;
 import CPR.NLP.domain.Review;
 import CPR.NLP.repository.CourseRepository;
-import CPR.NLP.repository.IntermediateRepository;
+import CPR.NLP.repository.ResultRepository;
 import CPR.NLP.repository.ReviewRepository;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -15,8 +15,6 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.http.*;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -27,8 +25,8 @@ import java.util.concurrent.TimeUnit;
 public class CrawlingService {
 
     private final ReviewRepository reviewRepository;
-    private final IntermediateRepository intermediateRepository;
     private final CourseRepository courseRepository;
+    private final ResultRepository resultRepository;
     private final PythonServiceCaller pythonServiceCaller;
 
     private Set<Cookie> savedCookies;
@@ -53,7 +51,7 @@ public class CrawlingService {
         return words.length >= 5;
     }
 
-    @Scheduled(cron = "0 47 1 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
+    @Scheduled(cron = "0 0 0 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
     public void saveReviews() {
         List<Course> courses = courseRepository.findAll();
         WebDriver driver = new ChromeDriver();
@@ -65,11 +63,10 @@ public class CrawlingService {
 
             List<Map<String, Object>> reviews = executeCrawlingScript(driver, name, professor); //crawling 함수 호출 ->  rating과 content가 담긴 reviews list 받아옴, 차례로 course_id와 함께 save
             float size = reviews.size();
-            intermediateRepository.deleteByCourseCourseId(courseId); //기존 해당 course의 intermediate 삭제
             reviewRepository.deleteByCourseCourseId(courseId); //기존 해당 course의 review들 삭제
 
             String text = "";
-            String material = "";
+            String data = "";
             String feeling = "";
             String allReviews = "";
             float averageRating = 0;
@@ -95,7 +92,7 @@ public class CrawlingService {
                         if (text.length() + sentence.length() <= 2000) {
                             text += sentence;
                         } else {
-                            material += pythonServiceCaller.callSummarizeFunction(text, clientId, clientSecret);
+                            data += pythonServiceCaller.callSummarizeFunction(text, clientId, clientSecret);
                             text = sentence;
                         }
                     }
@@ -103,28 +100,44 @@ public class CrawlingService {
             }
 
             if (isEnoughWords(text)) //남은 text 처리
-                material += pythonServiceCaller.callSummarizeFunction(text, clientId, clientSecret);
+                data += pythonServiceCaller.callSummarizeFunction(text, clientId, clientSecret);
 
-            feeling = pythonServiceCaller.callSentimentFunction(allReviews, clientId, clientSecret); //감정분석
+            feeling = pythonServiceCaller.callSentimentFunction(allReviews, clientId, clientSecret);
 
             Gson gson = new Gson();
             JsonObject documentObject = gson.fromJson(feeling, JsonObject.class).get("document").getAsJsonObject();
             String sentiment = documentObject.get("sentiment").getAsString();
             String confidence = documentObject.get("confidence").toString();
 
-            /*Intermediate newIntermediate = Intermediate.builder()
-                    .course(course)
-                    .confidence(confidence)
-                    .sentiment(sentiment)
-                    .material(material)
-                    .averageRating(averageRating/size)
-                    .build();
+            int resultId = -1;
+            Optional<Result> result = resultRepository.findByCourse(course);
+            if (result.isPresent()) {
+                resultId = result.get().getResultId();
+                Result updatingResult = Result.builder()
+                        .resultId(resultId)
+                        .course(course)
+                        .data(data)
+                        .confidence(confidence)
+                        .sentiment(sentiment)
+                        .averageRating(averageRating/size)
+                        .createdAt(result.get().getCreatedAt())
+                        .build();
 
-            intermediateRepository.save(newIntermediate);*/
-            System.out.println("text = " + text);
-            System.out.println("material = " + material);
-            System.out.println("sentiment = " + sentiment);
-            System.out.println("confidence = " + confidence);
+                resultRepository.save(updatingResult);
+            } else {
+                Result newResult = Result.builder()
+                        .course(course)
+                        .data(data)
+                        .confidence(confidence)
+                        .sentiment(sentiment)
+                        .averageRating(averageRating/size)
+                        .build();
+
+                resultRepository.save(newResult);
+            }
+
+            //resultRepository.deleteByCourseCourseId(courseId);
+            //resultRepository.save(newResult);
         }
         driver.quit(); //quit 하면 cookie 정보가 모두 사라짐
     }

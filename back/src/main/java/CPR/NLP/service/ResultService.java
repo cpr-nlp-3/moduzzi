@@ -25,7 +25,7 @@ public class ResultService {
         return new ResultResponseDTO(result);
     }
 
-    public void saveOrUpdateResult(ResultRequestDTO resultDTO) {
+    /*public void saveOrUpdateResult(ResultRequestDTO resultDTO) {
         Optional<Result> existingResult = resultRepository.findByCourse(resultDTO.getCourse());
 
         if (existingResult.isEmpty()) {
@@ -44,5 +44,5 @@ public class ResultService {
 
             resultRepository.save(updatedResult);
         }
-    }
+    }*/
 }

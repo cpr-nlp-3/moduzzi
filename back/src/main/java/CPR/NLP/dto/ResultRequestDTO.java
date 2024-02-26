@@ -12,9 +12,9 @@ public class ResultRequestDTO {
 
     @NotNull
     private Course course;
-    @NotNull
     private String data;
-    @NotNull
+    private String sentiment;
+    private String confidence;
     private float averageRating;
 
     public Result toEntity() {
