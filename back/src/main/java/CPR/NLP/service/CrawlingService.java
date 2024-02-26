@@ -29,6 +29,7 @@ public class CrawlingService {
     private final ReviewRepository reviewRepository;
     private final IntermediateRepository intermediateRepository;
     private final CourseRepository courseRepository;
+    private final PythonServiceCaller pythonServiceCaller;
 
     private Set<Cookie> savedCookies;
     @Value("${everytime.id}")
@@ -41,51 +42,6 @@ public class CrawlingService {
     @Value("${client_secret}")
     private String clientSecret;
 
-    public String summarize(String reviewContent) {
-        RestTemplate restTemplate = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("X-NCP-APIGW-API-KEY-ID", clientId);
-        headers.set("X-NCP-APIGW-API-KEY", clientSecret);
-        String summarizeUrl = "https://naveropenapi.apigw.ntruss.com/text-summary/v1/summarize";
-
-        // 요약할 문서와 옵션 설정
-        String requestBody = "{\"document\":{\"content\":\"" + reviewContent + "\"}," +
-                "\"option\":{\"language\":\"ko\",\"model\":\"general\",\"tone\":3,\"summaryCount\":5}}";
-
-        HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
-        ResponseEntity<String> response = restTemplate.postForEntity(summarizeUrl, request, String.class);
-
-        if (response.getStatusCode() == HttpStatus.OK) {
-            String summarizedText =  response.getBody().split(":")[1].trim().replaceAll("[.,!?]", "");
-            return summarizedText;
-        } else {
-            return "Error occurred: " + response.getStatusCode();
-        }
-    }
-
-    public String sentiment(String reviewContent) {
-        RestTemplate restTemplate = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("X-NCP-APIGW-API-KEY-ID", clientId);
-        headers.set("X-NCP-APIGW-API-KEY", clientSecret);
-        String summarizeUrl = "https://naveropenapi.apigw.ntruss.com/sentiment-analysis/v1/analyze";
-
-        // 요약할 문서와 옵션 설정
-        String requestBody = "{\"content\":\"" + reviewContent + "\"}";
-
-        HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
-        ResponseEntity<String> response = restTemplate.postForEntity(summarizeUrl, request, String.class);
-
-        if (response.getStatusCode() == HttpStatus.OK) {
-            return response.getBody();
-        } else {
-            return "Error occurred: " + response.getStatusCode();
-        }
-    }
 
     public static String[] splitIntoSentences(String text) {
         // 각 문장을 기호(?, !, . 등) 또는 줄바꿈(\n)을 기준으로 분리
@@ -97,7 +53,7 @@ public class CrawlingService {
         return words.length >= 5;
     }
 
-    @Scheduled(cron = "0 0 0 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
+    @Scheduled(cron = "0 47 1 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
     public void saveReviews() {
         List<Course> courses = courseRepository.findAll();
         WebDriver driver = new ChromeDriver();
@@ -126,18 +82,20 @@ public class CrawlingService {
                         .build();
 
                 reviewRepository.save(newReview);
-                allReviews += newReview.getContent().replace("\n", " ");
+                //allReviews += newReview.getContent().replace("\n", " ");
+                allReviews += newReview.getContent();
                 averageRating += newReview.getRating();
 
                 if ((text.length()+newReview.getContent().length()) <= 2000){ //클로바 API: 최대 2000자
-                    text += newReview.getContent().replace("\n", " ");
+                    //text += newReview.getContent().replace("\n", " ");
+                    text += newReview.getContent();
                 } else {
                     String[] sentences = splitIntoSentences(newReview.getContent());
                     for (String sentence : sentences) {
                         if (text.length() + sentence.length() <= 2000) {
                             text += sentence;
                         } else {
-                            material += summarize(text);
+                            material += pythonServiceCaller.callSummarizeFunction(text, clientId, clientSecret);
                             text = sentence;
                         }
                     }
@@ -145,16 +103,16 @@ public class CrawlingService {
             }
 
             if (isEnoughWords(text)) //남은 text 처리
-                material += summarize(text);
+                material += pythonServiceCaller.callSummarizeFunction(text, clientId, clientSecret);
 
-            feeling = sentiment(allReviews); //감정분석
+            feeling = pythonServiceCaller.callSentimentFunction(allReviews, clientId, clientSecret); //감정분석
 
             Gson gson = new Gson();
             JsonObject documentObject = gson.fromJson(feeling, JsonObject.class).get("document").getAsJsonObject();
             String sentiment = documentObject.get("sentiment").getAsString();
             String confidence = documentObject.get("confidence").toString();
 
-            Intermediate newIntermediate = Intermediate.builder()
+            /*Intermediate newIntermediate = Intermediate.builder()
                     .course(course)
                     .confidence(confidence)
                     .sentiment(sentiment)
@@ -162,7 +120,11 @@ public class CrawlingService {
                     .averageRating(averageRating/size)
                     .build();
 
-            intermediateRepository.save(newIntermediate);
+            intermediateRepository.save(newIntermediate);*/
+            System.out.println("text = " + text);
+            System.out.println("material = " + material);
+            System.out.println("sentiment = " + sentiment);
+            System.out.println("confidence = " + confidence);
         }
         driver.quit(); //quit 하면 cookie 정보가 모두 사라짐
     }
