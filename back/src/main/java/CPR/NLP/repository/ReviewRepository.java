@@ -9,7 +9,5 @@ import java.util.List;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
-    void deleteByCourse(Course course);
     void deleteByCourseCourseId(int courseId);
-    List<Review> findByCourseCourseId(int courseId);
 }

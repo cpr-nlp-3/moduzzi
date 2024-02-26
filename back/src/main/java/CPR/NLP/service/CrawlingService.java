@@ -1,10 +1,10 @@
 package CPR.NLP.service;
 
 import CPR.NLP.domain.Course;
-import CPR.NLP.domain.Intermediate;
+import CPR.NLP.domain.Result;
 import CPR.NLP.domain.Review;
 import CPR.NLP.repository.CourseRepository;
-import CPR.NLP.repository.IntermediateRepository;
+import CPR.NLP.repository.ResultRepository;
 import CPR.NLP.repository.ReviewRepository;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -15,8 +15,6 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.http.*;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -27,8 +25,9 @@ import java.util.concurrent.TimeUnit;
 public class CrawlingService {
 
     private final ReviewRepository reviewRepository;
-    private final IntermediateRepository intermediateRepository;
     private final CourseRepository courseRepository;
+    private final ResultRepository resultRepository;
+    private final PythonServiceCaller pythonServiceCaller;
 
     private Set<Cookie> savedCookies;
     @Value("${everytime.id}")
@@ -41,51 +40,6 @@ public class CrawlingService {
     @Value("${client_secret}")
     private String clientSecret;
 
-    public String summarize(String reviewContent) {
-        RestTemplate restTemplate = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("X-NCP-APIGW-API-KEY-ID", clientId);
-        headers.set("X-NCP-APIGW-API-KEY", clientSecret);
-        String summarizeUrl = "https://naveropenapi.apigw.ntruss.com/text-summary/v1/summarize";
-
-        // 요약할 문서와 옵션 설정
-        String requestBody = "{\"document\":{\"content\":\"" + reviewContent + "\"}," +
-                "\"option\":{\"language\":\"ko\",\"model\":\"general\",\"tone\":3,\"summaryCount\":5}}";
-
-        HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
-        ResponseEntity<String> response = restTemplate.postForEntity(summarizeUrl, request, String.class);
-
-        if (response.getStatusCode() == HttpStatus.OK) {
-            String summarizedText =  response.getBody().split(":")[1].trim().replaceAll("[.,!?]", "");
-            return summarizedText;
-        } else {
-            return "Error occurred: " + response.getStatusCode();
-        }
-    }
-
-    public String sentiment(String reviewContent) {
-        RestTemplate restTemplate = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("X-NCP-APIGW-API-KEY-ID", clientId);
-        headers.set("X-NCP-APIGW-API-KEY", clientSecret);
-        String summarizeUrl = "https://naveropenapi.apigw.ntruss.com/sentiment-analysis/v1/analyze";
-
-        // 요약할 문서와 옵션 설정
-        String requestBody = "{\"content\":\"" + reviewContent + "\"}";
-
-        HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
-        ResponseEntity<String> response = restTemplate.postForEntity(summarizeUrl, request, String.class);
-
-        if (response.getStatusCode() == HttpStatus.OK) {
-            return response.getBody();
-        } else {
-            return "Error occurred: " + response.getStatusCode();
-        }
-    }
 
     public static String[] splitIntoSentences(String text) {
         // 각 문장을 기호(?, !, . 등) 또는 줄바꿈(\n)을 기준으로 분리
@@ -109,11 +63,10 @@ public class CrawlingService {
 
             List<Map<String, Object>> reviews = executeCrawlingScript(driver, name, professor); //crawling 함수 호출 ->  rating과 content가 담긴 reviews list 받아옴, 차례로 course_id와 함께 save
             float size = reviews.size();
-            intermediateRepository.deleteByCourseCourseId(courseId); //기존 해당 course의 intermediate 삭제
             reviewRepository.deleteByCourseCourseId(courseId); //기존 해당 course의 review들 삭제
 
             String text = "";
-            String material = "";
+            String data = "";
             String feeling = "";
             String allReviews = "";
             float averageRating = 0;
@@ -126,18 +79,20 @@ public class CrawlingService {
                         .build();
 
                 reviewRepository.save(newReview);
-                allReviews += newReview.getContent().replace("\n", " ");
+                //allReviews += newReview.getContent().replace("\n", " ");
+                allReviews += newReview.getContent();
                 averageRating += newReview.getRating();
 
                 if ((text.length()+newReview.getContent().length()) <= 2000){ //클로바 API: 최대 2000자
-                    text += newReview.getContent().replace("\n", " ");
+                    //text += newReview.getContent().replace("\n", " ");
+                    text += newReview.getContent();
                 } else {
                     String[] sentences = splitIntoSentences(newReview.getContent());
                     for (String sentence : sentences) {
                         if (text.length() + sentence.length() <= 2000) {
                             text += sentence;
                         } else {
-                            material += summarize(text);
+                            data += pythonServiceCaller.callSummarizeFunction(text, clientId, clientSecret);
                             text = sentence;
                         }
                     }
@@ -145,24 +100,44 @@ public class CrawlingService {
             }
 
             if (isEnoughWords(text)) //남은 text 처리
-                material += summarize(text);
+                data += pythonServiceCaller.callSummarizeFunction(text, clientId, clientSecret);
 
-            feeling = sentiment(allReviews); //감정분석
+            feeling = pythonServiceCaller.callSentimentFunction(allReviews, clientId, clientSecret);
 
             Gson gson = new Gson();
             JsonObject documentObject = gson.fromJson(feeling, JsonObject.class).get("document").getAsJsonObject();
             String sentiment = documentObject.get("sentiment").getAsString();
             String confidence = documentObject.get("confidence").toString();
 
-            Intermediate newIntermediate = Intermediate.builder()
-                    .course(course)
-                    .confidence(confidence)
-                    .sentiment(sentiment)
-                    .material(material)
-                    .averageRating(averageRating/size)
-                    .build();
+            int resultId = -1;
+            Optional<Result> result = resultRepository.findByCourse(course);
+            if (result.isPresent()) {
+                resultId = result.get().getResultId();
+                Result updatingResult = Result.builder()
+                        .resultId(resultId)
+                        .course(course)
+                        .data(data)
+                        .confidence(confidence)
+                        .sentiment(sentiment)
+                        .averageRating(averageRating/size)
+                        .createdAt(result.get().getCreatedAt())
+                        .build();
 
-            intermediateRepository.save(newIntermediate);
+                resultRepository.save(updatingResult);
+            } else {
+                Result newResult = Result.builder()
+                        .course(course)
+                        .data(data)
+                        .confidence(confidence)
+                        .sentiment(sentiment)
+                        .averageRating(averageRating/size)
+                        .build();
+
+                resultRepository.save(newResult);
+            }
+
+            //resultRepository.deleteByCourseCourseId(courseId);
+            //resultRepository.save(newResult);
         }
         driver.quit(); //quit 하면 cookie 정보가 모두 사라짐
     }

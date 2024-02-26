@@ -15,9 +15,7 @@ public class ReviewResponseDTO {
     private Long reviewId;
     @NotNull
     private int courseId;
-    @NotNull
     private String content;
-    @NotNull
     private int rating;
     private LocalDateTime savedAt;
 

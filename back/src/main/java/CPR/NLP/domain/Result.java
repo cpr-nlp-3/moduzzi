@@ -24,7 +24,10 @@ public class Result {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
     private Course course;
+    @Column(columnDefinition = "Text")
     private String data;
+    private String sentiment;
+    private String confidence;
     @Column(name="average_rating")
     private float averageRating;
     @CreatedDate
