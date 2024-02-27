@@ -135,9 +135,6 @@ public class CrawlingService {
 
                 resultRepository.save(newResult);
             }
-
-            //resultRepository.deleteByCourseCourseId(courseId);
-            //resultRepository.save(newResult);
         }
         driver.quit(); //quit 하면 cookie 정보가 모두 사라짐
     }
