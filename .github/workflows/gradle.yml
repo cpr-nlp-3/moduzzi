@@ -35,12 +35,9 @@ jobs:
         distribution: 'temurin'
 
     - uses: actions/checkout@v2
-    - run: touch ./back/src/main/resources/application.properties
-    - run: echo "${{secrets.PROPERTIES}}" > ./back/src/main/resources/application.properties
-    - uses: actions/upload-artifact@v2
-      with:
-        name: application.properties
-        path: ./back/src/main/resources/application.properties
+    - run: touch ./src/main/resources/application.properties
+    - run: echo "${{secrets.PROPERTIES}}" > ./src/main/resources/application.properties
+
 
     - name: Set up Python
       uses: actions/setup-python@v2
