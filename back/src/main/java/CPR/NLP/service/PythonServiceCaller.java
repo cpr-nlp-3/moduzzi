@@ -1,5 +1,6 @@
 package CPR.NLP.service;
 
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -15,7 +16,10 @@ public class PythonServiceCaller {
         String output = "";
         try {
             // Python 스크립트 실행을 위한 ProcessBuilder 인스턴스 생성
-            ProcessBuilder processBuilder = new ProcessBuilder("python", "C:/Users/dlthd/Desktop/웹_프로젝트/NLP-3/moduzzi/back/src/main/resources/api_summarize.py", inputText);
+            ClassPathResource resource = new ClassPathResource("api_summarize.py");
+            String pythonScriptPath = resource.getFile().getAbsolutePath();
+            ProcessBuilder processBuilder = new ProcessBuilder("python", pythonScriptPath, inputText);
+            //ProcessBuilder processBuilder = new ProcessBuilder("python", "C:/Users/dlthd/Desktop/웹_프로젝트/NLP-3/moduzzi/back/src/main/resources/api_summarize.py", inputText);
 
             // 환경 변수 설정
             Map<String, String> env = processBuilder.environment();
@@ -50,7 +54,10 @@ public class PythonServiceCaller {
         String output = "";
         try {
             // Python 스크립트 실행을 위한 ProcessBuilder 인스턴스 생성
-            ProcessBuilder processBuilder = new ProcessBuilder("python", "C:/Users/dlthd/Desktop/웹_프로젝트/NLP-3/moduzzi/back/src/main/resources/api_sentiment.py", inputText);
+            ClassPathResource resource = new ClassPathResource("api_sentiment.py");
+            String pythonScriptPath = resource.getFile().getAbsolutePath();
+            ProcessBuilder processBuilder = new ProcessBuilder("python", pythonScriptPath, inputText);
+            //ProcessBuilder processBuilder = new ProcessBuilder("python", "C:/Users/dlthd/Desktop/웹_프로젝트/NLP-3/moduzzi/back/src/main/resources/api_sentiment.py", inputText);
 
             // 환경 변수 설정
             Map<String, String> env = processBuilder.environment();
