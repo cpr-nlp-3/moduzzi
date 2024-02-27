@@ -38,6 +38,7 @@ jobs:
     - run: touch ./src/main/resources/application.properties
     - run: echo "${{secrets.PROPERTIES}}" > ./src/main/resources/application.properties
 
+
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
