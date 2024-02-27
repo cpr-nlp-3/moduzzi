@@ -1,6 +1,2 @@
-os
-sys
 requests
 json
-re
-io
