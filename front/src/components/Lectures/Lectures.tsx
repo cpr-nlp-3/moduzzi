@@ -59,7 +59,7 @@ const Lectures = ({
       })
       .catch(() => {
         setError("none");
-        alert("서버에 연결할 수 없습니다!");
+        alert("서버에 연결할 수 없습니다.");
       });
   };
 
