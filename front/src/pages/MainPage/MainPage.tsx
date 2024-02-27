@@ -44,7 +44,9 @@ const MainPage = () => {
       setErrorMessage("로딩중...");
       setLectures([]);
 
-      fetch(`/api/course/${searchType}/${search.current}`)
+      fetch(
+        `${import.meta.env.VITE_API_URL}/course/${searchType}/${search.current}`,
+      )
         .then(async (res) => {
           if (res.ok) {
             return await res.json();
