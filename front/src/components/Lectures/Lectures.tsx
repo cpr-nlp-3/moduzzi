@@ -36,7 +36,9 @@ const Lectures = ({
     setError("loading");
     setErrorMessage("로딩중...");
 
-    fetch(`/api/result?name=${subject}&professor=${professor}`)
+    fetch(
+      `${import.meta.env.VITE_API_URL}/result?name=${subject}&professor=${professor}`,
+    )
       .then(async (res) => {
         if (res.ok) {
           return await res.json();
