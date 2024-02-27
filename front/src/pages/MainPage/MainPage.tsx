@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 
 import Button from "@/components/Button/Button.tsx";
 import DarkMode from "@/components/DarkMode/DarkMode.tsx";
+import Error from "@/components/Error/Error.tsx";
 import Evaluation from "@/components/Evaluation/Evaluation.tsx";
 import Lectures from "@/components/Lectures/Lectures.tsx";
 import Logo from "@/components/Logo/Logo.tsx";
@@ -15,6 +16,8 @@ interface LecturesInterface {
 }
 
 const MainPage = () => {
+  const [error, setError] = useState<"none" | "error" | "loading">("none");
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const [mode, setMode] = useState<"main" | "search" | "detail">("main");
   const [isSubject, setIsSubject] = useState<boolean>(true);
   const [lectures, setLectures] = useState<LecturesInterface[]>([]);
@@ -34,6 +37,25 @@ const MainPage = () => {
 
     if (event.key === "Enter") {
       handleSearchButtonClick();
+    }
+  };
+
+  const getContent = () => {
+    if (error === "error" || error === "loading") {
+      return <Error errorMessage={errorMessage} />;
+    }
+
+    if (mode === "search") {
+      return <Lectures lectures={lectures} setMode={setMode} />;
+    } else if (mode === "detail") {
+      return (
+        <Evaluation
+          subject={"자료구조"}
+          professor={"장부루"}
+          score={4.9}
+          details={["교수님이 좋아요", "조교님도 좋아요", "제 기분도 좋아요"]}
+        />
+      );
     }
   };
 
@@ -61,17 +83,7 @@ const MainPage = () => {
           handleEnterPress={handleEnterPress}
         />
         <Button isSubject={isSubject} setIsSubject={setIsSubject} />
-        {mode === "search" && (
-          <Lectures lectures={lectures} setMode={setMode} />
-        )}
-        {mode === "detail" && (
-          <Evaluation
-            subject={"자료구조"}
-            professor={"장부루"}
-            score={4.9}
-            details={["교수님이 좋아요", "조교님도 좋아요", "제 기분도 좋아요"]}
-          />
-        )}
+        {getContent()}
         <DarkMode />
       </styles.InnerContainer>
     </styles.OuterContainer>
