@@ -51,7 +51,7 @@ const Lectures = ({
           subject,
           professor,
           score: data.averageRating,
-          details: data.data.split("\n"),
+          details: data.data.trim().split("\n"),
         });
 
         setError("none");
