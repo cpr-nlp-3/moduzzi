@@ -3,14 +3,23 @@ import * as styles from "./Button.styles.tsx";
 interface ButtonProps {
   isSubject: boolean;
   setIsSubject: (isSubject: boolean) => void;
+  handleSearchButtonClick: () => void;
 }
 
-const Button = ({ isSubject, setIsSubject }: ButtonProps) => {
+const Button = ({
+  isSubject,
+  setIsSubject,
+  handleSearchButtonClick,
+}: ButtonProps) => {
   return (
     <styles.ButtonContainer>
       <styles.Button
         $isAvailable={isSubject}
         onClick={() => {
+          if (!isSubject) {
+            handleSearchButtonClick();
+          }
+
           setIsSubject(true);
         }}
       >
@@ -19,6 +28,10 @@ const Button = ({ isSubject, setIsSubject }: ButtonProps) => {
       <styles.Button
         $isAvailable={!isSubject}
         onClick={() => {
+          if (isSubject) {
+            handleSearchButtonClick();
+          }
+
           setIsSubject(false);
         }}
       >

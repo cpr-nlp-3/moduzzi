@@ -137,7 +137,11 @@ const MainPage = () => {
           handleSearchButtonClick={handleSearchButtonClick}
           handleEnterPress={handleEnterPress}
         />
-        <Button isSubject={isSubject} setIsSubject={setIsSubject} />
+        <Button
+          isSubject={isSubject}
+          setIsSubject={setIsSubject}
+          handleSearchButtonClick={handleSearchButtonClick}
+        />
         {getContent()}
         <DarkMode />
       </styles.InnerContainer>
