@@ -1,10 +1,6 @@
 ![logo](https://github.com/boostcampwm2023/web07-GBS/assets/119842443/022ad61d-c7df-40e0-82c6-a40900530039)
-
-<center>
-
-<h2>🤔 다음 학기 수업... 뭐듣지...? 🤔</h2>
-
-</center>
+  
+<h3 align="center">🤔 다음 학기 수업... 뭐 듣지...? 🤔</h3>
 
 # 🔎 프로젝트 소개
 
