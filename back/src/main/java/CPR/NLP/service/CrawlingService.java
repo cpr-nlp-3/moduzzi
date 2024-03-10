@@ -50,8 +50,15 @@ public class CrawlingService {
     }
 
     public boolean isEnoughWords(String text) {
-        String[] words = text.split("\\s+"); // 공백 문자로 단어를 분리하여 배열로 만들고, 5개 이상이면 true 반환
-        return words.length >= 5;
+        Boolean isEnough = false;
+        String[] lines = text.split("\n");
+
+        for (String line : lines) {
+            String[] words = line.split("\\s+"); // 공백 문자로 단어를 분리
+            if (words.length >= 5)
+                isEnough = true;
+        }
+        return isEnough;
     }
 
     @Scheduled(cron = "0 7 16 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
@@ -106,8 +113,13 @@ public class CrawlingService {
                 }
             }
 
-            if (isEnoughWords(text)) //남은 text 처리
+            if (isEnoughWords(text)) { //남은 text 처리
                 data += pythonServiceCaller.callSummarizeFunction(text, clientId, clientSecret);
+            } else { //줄바꿈 여러개로 짧은 여러 문장으로 나뉘었을 때
+                text = text.replaceAll("\n", " ");
+                if (isEnoughWords(text))
+                    data += pythonServiceCaller.callSummarizeFunction(text, clientId, clientSecret);
+            }
 
             /*if (allReviews.trim() != ""){
                 feeling = pythonServiceCaller.callSentimentFunction(allReviews, clientId, clientSecret);
@@ -166,7 +178,7 @@ public class CrawlingService {
             savedCookies = driver.manage().getCookies();
         }
 
-        driver.manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS);
 
         // Search for lecture
         List<Map<String, Object>> reviews = new ArrayList<>();
@@ -174,7 +186,7 @@ public class CrawlingService {
         driver.findElement(By.cssSelector("body > div > div > div.side > div > form > input.submit")).click();
 
         // Find the professor's lecture element
-        driver.manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS);
         WebElement lectureElement = null;
 
         try {
@@ -189,7 +201,7 @@ public class CrawlingService {
         // Click on the lecture element
         lectureElement.click();
 
-        driver.manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS);
         WebElement moreElement = null;
 
         try {
