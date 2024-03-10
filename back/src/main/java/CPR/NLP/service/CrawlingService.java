@@ -6,16 +6,19 @@ import CPR.NLP.domain.Review;
 import CPR.NLP.repository.CourseRepository;
 import CPR.NLP.repository.ResultRepository;
 import CPR.NLP.repository.ReviewRepository;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Value;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -51,7 +54,7 @@ public class CrawlingService {
         return words.length >= 5;
     }
 
-    @Scheduled(cron = "0 0 0 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
+    @Scheduled(cron = "0 7 16 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
     public void saveReviews() {
         List<Course> courses = courseRepository.findAll();
         WebDriver driver = new ChromeDriver();
@@ -63,12 +66,16 @@ public class CrawlingService {
 
             List<Map<String, Object>> reviews = executeCrawlingScript(driver, name, professor); //crawling 함수 호출 ->  rating과 content가 담긴 reviews list 받아옴, 차례로 course_id와 함께 save
             float size = reviews.size();
+            if (size == 0)
+                size = 1;
             reviewRepository.deleteByCourseCourseId(courseId); //기존 해당 course의 review들 삭제
 
             String text = "";
             String data = "";
             String feeling = "";
             String allReviews = "";
+            String sentiment = "";
+            String confidence = "";
             float averageRating = 0;
 
             for (Map<String, Object> review: reviews) {
@@ -102,12 +109,17 @@ public class CrawlingService {
             if (isEnoughWords(text)) //남은 text 처리
                 data += pythonServiceCaller.callSummarizeFunction(text, clientId, clientSecret);
 
-            feeling = pythonServiceCaller.callSentimentFunction(allReviews, clientId, clientSecret);
+            /*if (allReviews.trim() != ""){
+                feeling = pythonServiceCaller.callSentimentFunction(allReviews, clientId, clientSecret);
 
-            Gson gson = new Gson();
-            JsonObject documentObject = gson.fromJson(feeling, JsonObject.class).get("document").getAsJsonObject();
-            String sentiment = documentObject.get("sentiment").getAsString();
-            String confidence = documentObject.get("confidence").toString();
+                //Gson gson = new Gson();
+                Gson gson = new GsonBuilder().setLenient().create();
+                JsonElement feelingElement = gson.fromJson(feeling, JsonElement.class);
+
+                JsonObject documentObject = gson.fromJson(feeling, JsonObject.class).get("document").getAsJsonObject();
+                sentiment = documentObject.get("sentiment").getAsString();
+                confidence = documentObject.get("confidence").toString();
+            }*/
 
             int resultId = -1;
             Optional<Result> result = resultRepository.findByCourse(course);
@@ -131,6 +143,7 @@ public class CrawlingService {
                         .confidence(confidence)
                         .sentiment(sentiment)
                         .averageRating(averageRating/size)
+                        //.createdAt(LocalDateTime.now())
                         .build();
 
                 resultRepository.save(newResult);
@@ -185,7 +198,7 @@ public class CrawlingService {
             System.out.println("No reviews found for the professor's lecture.");
             return reviews;
         }
-        moreElement.click(); //더보기 메뉴
+        moreElement.click(); //더보기 메뉴*/
 
         // Retrieve and print the reviews
         List<WebElement> starElements = driver.findElements(By.cssSelector("body > div > div > div.pane > div > div.articles > div.article > div.article_header > div.title > div.rate > span.star > span.on"));
