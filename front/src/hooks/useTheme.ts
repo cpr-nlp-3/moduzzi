@@ -1,4 +1,4 @@
-import { useContext, useLayoutEffect } from "react";
+import { useContext } from "react";
 
 import { ThemeContext } from "@/context/ThemeProvider.tsx";
 
@@ -13,14 +13,6 @@ const useTheme = () => {
       setTheme("light");
     }
   };
-
-  useLayoutEffect(() => {
-    if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      setTheme("dark");
-    } else {
-      setTheme("light");
-    }
-  }, []);
 
   return { theme, handleTheme };
 };
