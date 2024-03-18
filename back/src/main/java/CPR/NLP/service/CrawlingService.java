@@ -61,7 +61,7 @@ public class CrawlingService {
         return isEnough;
     }
 
-    @Scheduled(cron = "0 25 22 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
+    @Scheduled(cron = "0 0 0 * * *") //반환타입이 void고, 매개변수가 없는 메소드여야 함
     public void saveReviews() {
         List<Course> courses = courseRepository.findAll();
         WebDriver driver = new ChromeDriver();

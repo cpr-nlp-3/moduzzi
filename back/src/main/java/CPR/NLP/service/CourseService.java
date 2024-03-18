@@ -1,28 +1,21 @@
 package CPR.NLP.service;
 
 import CPR.NLP.domain.Course;
-import CPR.NLP.dto.CourseRequestDTO;
 import CPR.NLP.dto.CourseResponseDTO;
 import CPR.NLP.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.commons.io.FileUtils;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ResourceUtils;
 
 import java.io.*;
-import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -35,23 +28,19 @@ import java.util.stream.Collectors;
 public class CourseService {
 
     private final CourseRepository courseRepository;
-
-    /*
-     ClassPathResource resource = new ClassPathResource("개설교과목정보.xlsx");
-     String pythonScriptPath = resource.getFile().getAbsolutePath();
-     */
-
     private String lastHash = null;
 
-    @Scheduled(cron = "0 19 16 * * *") //매주 월요일 오후 12시에 실행 //0 12 0 * * MON
+    @Scheduled(cron = "0 12 0 * * MON") //매주 월요일 오후 12시에 실행 //0 12 0 * * MON
     public void checkAndUpdateExcel() {
         try {
-            ClassPathResource resource = new ClassPathResource("개설교과목정보.xlsx");
-            InputStream inputStream = resource.getInputStream();
-            String currentHash = calculateMD5(inputStream);
+            InputStream inputStream = new ClassPathResource("/개설교과목정보.xlsx").getInputStream();
+            File file = File.createTempFile("개설교과목정보", ".xlsx");
+            FileUtils.copyInputStreamToFile(inputStream, file);
+
+            String currentHash = calculateMD5(file);
             if (!currentHash.equals(lastHash)) {
                 // 파일이 업데이트되었음 -> 크롤링
-                crawlExcelFile(inputStream);
+                crawlExcelFile(file);
                 lastHash = currentHash;
             }
         } catch (IOException e) {
@@ -59,15 +48,13 @@ public class CourseService {
         }
     }
 
-    private String calculateMD5(InputStream inputStream) throws IOException {
-        return DigestUtils.md5Hex(inputStream);
+    private String calculateMD5(File file) throws IOException {
+        return DigestUtils.md5Hex(new FileInputStream(file));
     }
 
-    private void crawlExcelFile(InputStream inputStream) {
+    private void crawlExcelFile(File file) {
         try {
-            //FileInputStream inputStream = new FileInputStream(new File(filePath));
-            //InputStream inputStream = resource.getInputStream();
-            XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+            XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(file));
             XSSFSheet sheet = workbook.getSheetAt(0); // 첫 번째 시트를 가져옴
 
             // 각 행을 순회하면서 열 값을 가져옴
@@ -126,7 +113,7 @@ public class CourseService {
             }
 
             workbook.close();
-            inputStream.close();
+            //inputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
