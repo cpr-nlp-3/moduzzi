@@ -6,14 +6,12 @@ import CPR.NLP.service.ResultService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin(origins = { "http://localhost:3000", "https://www.moduzzi.site/" }, allowCredentials = "true")
 @RequestMapping("result")
 public class ResultController {
 
