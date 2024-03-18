@@ -14,15 +14,15 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ResourceUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -41,19 +41,17 @@ public class CourseService {
      String pythonScriptPath = resource.getFile().getAbsolutePath();
      */
 
-    //private String excelFilePath = "C:\\Users\\dlthd\\Desktop\\웹_프로젝트\\NLP-3\\moduzzi\\back\\src\\main\\resources\\개설교과목정보.xlsx";
-    private Resource resource = ResourcePatternUtils.getResourcePatternResolver(new DefaultResourceLoader())
-            .getResource("classpath*:개설교과목정보.xlsx");
     private String lastHash = null;
 
-    @Scheduled(cron = "0 12 0 * * MON") //매주 월요일 오후 12시에 실행 //0 12 0 * * MON
+    @Scheduled(cron = "0 19 16 * * *") //매주 월요일 오후 12시에 실행 //0 12 0 * * MON
     public void checkAndUpdateExcel() {
         try {
-            String currentHash = calculateMD5(resource.getInputStream());
-
+            ClassPathResource resource = new ClassPathResource("개설교과목정보.xlsx");
+            InputStream inputStream = resource.getInputStream();
+            String currentHash = calculateMD5(inputStream);
             if (!currentHash.equals(lastHash)) {
                 // 파일이 업데이트되었음 -> 크롤링
-                crawlExcelFile(resource);
+                crawlExcelFile(inputStream);
                 lastHash = currentHash;
             }
         } catch (IOException e) {
@@ -65,10 +63,10 @@ public class CourseService {
         return DigestUtils.md5Hex(inputStream);
     }
 
-    private void crawlExcelFile(Resource resource) {
+    private void crawlExcelFile(InputStream inputStream) {
         try {
             //FileInputStream inputStream = new FileInputStream(new File(filePath));
-            InputStream inputStream = resource.getInputStream();
+            //InputStream inputStream = resource.getInputStream();
             XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
             XSSFSheet sheet = workbook.getSheetAt(0); // 첫 번째 시트를 가져옴
 
@@ -80,7 +78,7 @@ public class CourseService {
                 String cell9 = currentRow.getCell(8).getStringCellValue();
                 String cell11 = currentRow.getCell(10).getStringCellValue();
 
-                Optional<Course> course = courseRepository.findByNameAndProfessor(cell5, cell11);
+                Optional<Course> course = courseRepository.findByNameAndProfessor(cell7, cell11);
                 if (course.isPresent()) {
                     Course existing = course.get();
                     long daysDifference = ChronoUnit.DAYS.between(existing.getUpdatedAt(), LocalDateTime.now());
